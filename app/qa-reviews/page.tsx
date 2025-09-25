@@ -18,11 +18,19 @@ import { QAReview } from '@/types/qaReview';
 import { mockQAReviews } from '@/lib/mockData';
 import { toast } from 'sonner';
 
+const STATUS_FILTERS = [
+  { label: 'Total Reviews', value: 'all', color: 'gray', bg: 'from-blue-500 via-blue-600 to-blue-700', border: 'border-gray-700', text: 'text-gray-100', hover: 'group-hover:text-gray-300' },
+  { label: 'Not Started', value: 'Not Started', color: 'yellow', bg: 'from-yellow-50 via-yellow-100 to-yellow-200', border: 'border-yellow-200', text: 'text-yellow-500', hover: 'group-hover:text-yellow-600' },
+  { label: 'In Progress', value: 'In Progress', color: 'blue', bg: 'from-blue-50 via-blue-100 to-blue-200', border: 'border-blue-200', text: 'text-blue-600', hover: 'group-hover:text-blue-700' },
+  { label: 'Completed', value: 'Completed', color: 'green', bg: 'from-green-50 via-green-100 to-green-200', border: 'border-green-200', text: 'text-green-600', hover: 'group-hover:text-green-700' },
+];
+
 export default function QAReviewsPage() {
   const [data, setData] = useState<QAReview[]>(mockQAReviews);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<QAReview | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Not Started' | 'In Progress' | 'Completed'>('all');
 
   const handleSave = (reviewData: Omit<QAReview, 'id'>) => {
     if (editingReview) {
@@ -92,11 +100,38 @@ export default function QAReviewsPage() {
         </div>
       ),
     },
+    // Reviewer / Partner Status column
     {
-      accessorKey: 'reviewerStatus',
-      header: 'Reviewer Status',
+      id: 'reviewerPartnerStatus',
+      header: 'Reviewer / Partner Status',
       cell: ({ row }) => (
-        <StatusBadge status={row.getValue('reviewerStatus')} />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground min-w-[60px]">Reviewer:</span>
+            <StatusBadge status={row.original.reviewerStatus} />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground min-w-[60px]">Partner:</span>
+            <StatusBadge status={row.original.partnerStatus} />
+          </div>
+        </div>
+      ),
+    },
+    // Dates column in similar style
+    {
+      id: 'reviewDates',
+      header: 'Dates',
+      cell: ({ row }) => (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground min-w-[60px]">Planned:</span>
+            <span className="text-xs font-mono text-foreground">{row.original.reviewPlanned}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground min-w-[60px]">End:</span>
+            <span className="text-xs font-mono text-foreground">{row.original.reviewEndDate}</span>
+          </div>
+        </div>
       ),
     },
     {
@@ -114,10 +149,6 @@ export default function QAReviewsPage() {
       cell: ({ row }) => (
         <div className="flex flex-col gap-1">
           <StatusBadge status={row.getValue('qaReviewStatus')} />
-          <div className="text-xs text-muted-foreground">
-            Planned: {row.original.reviewPlanned} <br />
-            End: {row.original.reviewEndDate}
-          </div>
         </div>
       ),
     },
@@ -150,6 +181,12 @@ export default function QAReviewsPage() {
     },
   ];
 
+  // Filtered data for table
+  const filteredData =
+    statusFilter === 'all'
+      ? data
+      : data.filter((r) => r.qaReviewStatus === statusFilter);
+
   return (
     <div className="space-y-6">
       <div>
@@ -158,10 +195,43 @@ export default function QAReviewsPage() {
           Manage and track all quality assurance reviews.
         </p>
       </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {STATUS_FILTERS.map((filter, idx) => {
+          let count = 0;
+          if (filter.value === 'all') {
+            count = data.length;
+          } else {
+            count = data.filter((r) => r.qaReviewStatus === filter.value).length;
+          }
+          // Highlight selected card
+          const isActive = statusFilter === filter.value;
+          const ring = isActive ? 'ring-1 ring-offset-1 ring-blue-500' : '';
+          return (
+            <div
+              key={filter.value}
+              className={`cursor-pointer rounded-2xl bg-gradient-to-br ${filter.bg} shadow-lg p-2 flex flex-col items-center justify-center border ${filter.border} transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl group select-none ${ring}`}
+              onClick={() => setStatusFilter(filter.value as any)}
+              tabIndex={0}
+              role="button"
+              aria-pressed={isActive}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') setStatusFilter(filter.value as any);
+              }}
+            >
+              <span className={`text-3xl font-extrabold ${filter.text} tracking-tight transition-colors duration-200 ${filter.hover}`}>
+                {count}
+              </span>
+              <span className={`${filter.color === 'gray' ? 'text-gray-300' : filter.color === 'yellow' ? 'text-yellow-700' : filter.color === 'blue' ? 'text-blue-700' : 'text-green-700'} text-sm mt-2 font-medium tracking-wide`}>
+                {filter.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
 
       <DataTable
         columns={columns}
-        data={data}
+        data={filteredData}
         searchKey="memberFirmIntranetName"
         searchPlaceholder="Search firms..."
         onAdd={() => {
