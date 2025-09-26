@@ -17,6 +17,7 @@ import { QAReviewDrawer } from '@/components/drawer/qa-review-drawer';
 import { QAReview } from '@/types/qaReview';
 import { mockQAReviews } from '@/lib/mockData';
 import { toast } from 'sonner';
+import { AssignReviewDialog } from './assign-form'
 
 // Dialog components (simple implementation)
 import * as React from 'react';
@@ -136,7 +137,8 @@ export default function QAReviewsPage() {
   const [editingReview, setEditingReview] = useState<QAReview | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'all' | 'Not Started' | 'In Progress' | 'Completed'>('all');
-
+  const [open, setOpen] = React.useState(false);
+  const [selectedReview, setSelectedReview] = React.useState<QAReview | undefined>();
   // State for detail dialog
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [detailReview, setDetailReview] = useState<QAReview | null>(null);
@@ -288,6 +290,12 @@ export default function QAReviewsPage() {
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => window.open('https://www.example.com', '_blank')}
+              >
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0,0,256,256"><defs><linearGradient x1="4.648" y1="14.648" x2="23.403" y2="33.403" gradientUnits="userSpaceOnUse" id="color-1"><stop offset="0" stop-color="#5961c3"></stop><stop offset="1" stop-color="#3a41ac"></stop></linearGradient></defs><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" ><g transform="scale(5.33333,5.33333)"><path d="M44,22v8c0,3.314 -2.686,6 -6,6c-3.314,0 -6,-2.686 -6,-6v-10h10c1.105,0 2,0.895 2,2zM38,16c2.209,0 4,-1.791 4,-4c0,-2.209 -1.791,-4 -4,-4c-2.209,0 -4,1.791 -4,4c0,2.209 1.791,4 4,4z" fill="#5059c9"></path><path d="M35,22v11c0,5.743 -4.841,10.356 -10.666,9.978c-5.315,-0.344 -9.334,-4.995 -9.334,-10.321v-12.657h18c1.105,0 2,0.895 2,2zM25,17c3.314,0 6,-2.686 6,-6c0,-3.314 -2.686,-6 -6,-6c-3.314,0 -6,2.686 -6,6c0,3.314 2.686,6 6,6z" fill="#7b83eb"></path><circle cx="25" cy="11" r="6" fill="#7b83eb"></circle><path d="M26,33.319v-13.319h-11v12.657c0,1.534 0.343,3.008 0.944,4.343h6.374c2.034,0 3.682,-1.648 3.682,-3.681z" fill="#000000" opacity="0.05"></path><path d="M15,20v12.657c0,1.16 0.201,2.284 0.554,3.343h6.658c1.724,0 3.121,-1.397 3.121,-3.121v-12.879z" fill="#000000" opacity="0.07"></path><path d="M24.667,20h-9.667v12.657c0,0.802 0.101,1.584 0.274,2.343h6.832c1.414,0 2.56,-1.146 2.56,-2.56v-12.44z" fill="#000000" opacity="0.09"></path><path d="M22,34h-16c-1.105,0 -2,-0.895 -2,-2v-16c0,-1.105 0.895,-2 2,-2h16c1.105,0 2,0.895 2,2v16c0,1.105 -0.895,2 -2,2z" fill="url(#color-1)"></path><path d="M18.068,18.999h-8.136v1.72h3.047v8.28h2.042v-8.28h3.047z" fill="#ffffff"></path></g></g></svg>
+                Send to Teams
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -370,6 +378,12 @@ export default function QAReviewsPage() {
         columns={columns}
         data={filteredData}
         searchKey="memberFirmIntranetName"
+        onRowClick={(row) => {
+          setSelectedReview(row);
+          setOpen(true);
+        }}
+
+        
         searchPlaceholder="Search firms..."
         onAdd={() => {
           setEditingReview(null);
@@ -378,7 +392,15 @@ export default function QAReviewsPage() {
         onExport={handleExport}
         isLoading={isLoading}
       />
-
+ <AssignReviewDialog
+        open={open}
+        onOpenChange={setOpen}
+        review={selectedReview}
+        onSubmit={(data) => {
+          console.log("Assigned:", data, "to review:", selectedReview);
+          // 👉 handle API call or state update here
+        }}
+      />
       <QAReviewDrawer
         isOpen={isDrawerOpen}
         onClose={() => {
