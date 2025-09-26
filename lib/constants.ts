@@ -22,7 +22,7 @@ export const STATUS_COLORS = {
 
 export const SHORT_LABELS = {
   'Prospect': 'Pros',
-  'Current Members': 'Curr',
+  'Current Members': 'Member',
   'Not Started': 'Not Started',
   'In Progress': 'In Prog',
   'Completed': 'Done',
@@ -33,4 +33,4 @@ export const COUNTRIES = [
   'France', 'Netherlands', 'Singapore', 'Japan', 'South Korea'
 ];
 
-export const GRADINGS = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'];
+export const GRADINGS = ['1', '2', '3','4', '5'];
