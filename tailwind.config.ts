@@ -30,9 +30,8 @@ const config: Config = {
           DEFAULT: 'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))',
         },
-        // HLB Global Brand Blue: #005EB8
         primary: {
-          DEFAULT: '#005EB8',
+          DEFAULT: '#015a78',
           foreground: '#FFFFFF',
         },
         secondary: {

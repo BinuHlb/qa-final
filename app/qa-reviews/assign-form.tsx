@@ -4,7 +4,7 @@ import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { QAReview } from "@/lib/mockData";
+import { QAReview } from "@/types/qaReview"; // FIX: Import from types, not mockData
 
 interface AssignReviewDialogProps {
   open: boolean;

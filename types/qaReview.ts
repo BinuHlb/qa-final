@@ -1,3 +1,4 @@
+
 export interface QAReview {
   id: string;
   memberFirmIntranetName: string;
@@ -5,7 +6,7 @@ export interface QAReview {
   memberContact: string;
   reviewerName: string;
   country: string;
-  reviewerStatus: '⛔' | 'Active';
+  reviewerStatus: '⛔' | 'Active' | 'Approved';
   partnerStatus: '⛔' | 'Approved';
   reviewPlanned: string;
   reviewEndDate: string;
