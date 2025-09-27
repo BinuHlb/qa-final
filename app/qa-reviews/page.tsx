@@ -150,11 +150,10 @@ export default function QAReviewsPage() {
     },
     {
       accessorKey: 'currentGrading',
-      header: 'Current Grade',
+      header: 'Current Grade ',
       cell: ({ row }) => (
-        <div className="font-mono text-sm font-semibold">
-          {row.getValue('currentGrading')}
-        </div>
+        
+          <StatusBadge status={row.getValue('currentGrading')} />
       ),
     },
     {
@@ -246,7 +245,7 @@ export default function QAReviewsPage() {
           return (
             <div
               key={filter.value}
-              className={`cursor-pointer rounded-2xl bg-gradient-to-br ${filter.bg} shadow-lg p-2 flex flex-col items-center justify-center border ${filter.border} transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl group select-none ${ring}`}
+              className={`cursor-pointer rounded-sm bg-gradient-to-br ${filter.bg} shadow-lg p-2 flex flex-col items-center justify-center border ${filter.border} transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl group select-none ${ring}`}
               onClick={() => setStatusFilter(filter.value as any)}
             >
               <span

@@ -7,6 +7,13 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  safelist: [
+    'bg-green-500',
+    'text-green-800',
+    'bg-red-500',
+    'bg-orange-500',
+    'bg-yellow-500'
+  ],
   theme: {
     extend: {
       backgroundImage: {
@@ -38,6 +45,7 @@ const config: Config = {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
         },
+        
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
