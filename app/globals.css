@@ -139,13 +139,18 @@
     top: 0;
     z-index: 100;
     background: hsl(var(--background));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   
   .sticky-table-container thead th {
     position: sticky;
     top: 0;
     background: hsl(var(--background));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 100;
+    border-bottom: 1px solid hsl(var(--border));
   }
   
   .sticky-table-header {
@@ -153,9 +158,23 @@
     top: 0;
     z-index: 100;
     background: hsl(var(--background));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   
   .sticky-table-header th {
     background: hsl(var(--background));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  
+  /* Ensure table rows have proper spacing */
+  .sticky-table-container tbody tr {
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+  }
+  
+  .sticky-table-container tbody tr:hover {
+    background-color: hsl(var(--muted) / 0.3);
   }
 }

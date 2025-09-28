@@ -12,19 +12,19 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Bell, Settings, User, LogOut, Menu } from 'lucide-react';
+import { Bell, Settings, User, LogOut, Menu, LayoutDashboard, FileCheck, UserCheck, Building2, Users, Shield } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/ui/logo';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useState } from 'react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'QA Reviews', href: '/qa-reviews' },
-  { name: 'Reviewer', href: '/reviewer' },
-  { name: 'Member Firm', href: '/member-firm' },
-  { name: 'Technical Director', href: '/technical-director' },
-  { name: 'Admin', href: '/admin' },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'QA Reviews', href: '/qa-reviews', icon: FileCheck },
+  { name: 'Reviewer', href: '/reviewer', icon: UserCheck },
+  { name: 'Member Firm', href: '/member-firm', icon: Building2 },
+  { name: 'Technical Director', href: '/technical-director', icon: Users },
+  { name: 'Admin', href: '/admin', icon: Shield },
 ];
 
 export function Navbar() {
@@ -44,20 +44,25 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navigation.map((item) => (
-              <Link key={item.name} href={item.href}>
-                <Button
-                  variant={pathname === item.href ? 'secondary' : 'ghost'}
+          <div className="hidden md:flex items-center space-x-6">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link 
+                  key={item.name} 
+                  href={item.href}
                   className={cn(
-                    'text-sm font-medium',
-                    pathname === item.href && 'bg-secondary'
+                    'flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary',
+                    pathname === item.href 
+                      ? 'text-primary border-b-2 border-primary pb-1' 
+                      : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
+                  <Icon className="h-4 w-4" />
                   {item.name}
-                </Button>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Side Actions */}
@@ -111,28 +116,35 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t py-4">
             <div className="grid grid-cols-1 gap-2">
-              {navigation.map((item) => (
-                <Link key={item.name} href={item.href}>
-                  <Button
-                    variant={pathname === item.href ? 'secondary' : 'ghost'}
-                    className="w-full justify-start"
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link 
+                    key={item.name} 
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
+                      pathname === item.href 
+                        ? 'text-primary bg-primary/10 rounded-md' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md'
+                    )}
                     onClick={() => setMobileMenuOpen(false)}
                   >
+                    <Icon className="h-4 w-4" />
                     {item.name}
-                  </Button>
-                </Link>
-              ))}
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
+                  </Link>
+                );
+              })}
+              <button
+                className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-left text-destructive hover:text-destructive-foreground hover:bg-destructive/10 rounded-md transition-colors"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   logout();
                 }}
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="h-4 w-4" />
                 Log out
-              </Button>
+              </button>
             </div>
           </div>
         )}
