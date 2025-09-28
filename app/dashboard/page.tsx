@@ -3,18 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import dynamic from 'next/dynamic';
 import { 
   TrendingUp, 
   Users, 
@@ -26,6 +15,48 @@ import {
 } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { mockQAReviews } from '@/lib/mockData';
+
+// Dynamically import recharts components to avoid SSR and type issues
+const ResponsiveContainer = dynamic(
+  () => import('recharts').then(mod => mod.ResponsiveContainer as React.ComponentType<any>),
+  { ssr: false }
+);
+const BarChart = dynamic(
+  () => import('recharts').then(mod => mod.BarChart as React.ComponentType<any>),
+  { ssr: false }
+);
+const Bar = dynamic(
+  () => import('recharts').then(mod => mod.Bar as React.ComponentType<any>),
+  { ssr: false }
+);
+const XAxis = dynamic(
+  () => import('recharts').then(mod => mod.XAxis as React.ComponentType<any>),
+  { ssr: false }
+);
+const YAxis = dynamic(
+  () => import('recharts').then(mod => mod.YAxis as React.ComponentType<any>),
+  { ssr: false }
+);
+const CartesianGrid = dynamic(
+  () => import('recharts').then(mod => mod.CartesianGrid as React.ComponentType<any>),
+  { ssr: false }
+);
+const Tooltip = dynamic(
+  () => import('recharts').then(mod => mod.Tooltip as React.ComponentType<any>),
+  { ssr: false }
+);
+const PieChart = dynamic(
+  () => import('recharts').then(mod => mod.PieChart as React.ComponentType<any>),
+  { ssr: false }
+);
+const Pie = dynamic(
+  () => import('recharts').then(mod => mod.Pie as React.ComponentType<any>),
+  { ssr: false }
+);
+const Cell = dynamic(
+  () => import('recharts').then(mod => mod.Cell as React.ComponentType<any>),
+  { ssr: false }
+);
 
 const statusData = [
   { name: 'Not Started', value: 2, color: '#6B7280' },
@@ -41,6 +72,13 @@ const monthlyData = [
   { month: 'May', reviews: 22 },
   { month: 'Jun', reviews: 18 },
 ];
+
+// Helper for Pie label to avoid 'percent' being unknown
+function pieLabel(props: any) {
+  // props: { name: string, percent: number, ... }
+  const { name, percent } = props;
+  return `${name} ${(percent * 100).toFixed(0)}%`;
+}
 
 export default function Dashboard() {
   const totalReviews = mockQAReviews.length;
@@ -80,7 +118,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{completedReviews}</div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((completedReviews / totalReviews) * 100)}% completion rate
+              {totalReviews > 0 ? Math.round((completedReviews / totalReviews) * 100) : 0}% completion rate
             </p>
           </CardContent>
         </Card>
@@ -122,15 +160,17 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <ResponsiveContainer width="100%" height={350} as any>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="reviews" fill="#3B82F6" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ width: '100%', height: 350 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="reviews" fill="#3B82F6" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -142,25 +182,27 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350} as any>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <div style={{ width: '100%', height: 350 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={pieLabel}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
