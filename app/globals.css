@@ -145,12 +145,28 @@
   }
   
   .enhanced-text {
-    color: hsl(var(--foreground));
-    font-weight: 500;
+    color: hsl(var(--foreground) / 1);
+    font-weight: 600;
   }
   
   .enhanced-muted {
-    color: hsl(var(--muted-foreground) / 0.9);
+    color: hsl(var(--muted-foreground) / 1);
+  }
+  
+  /* High contrast foreground utilities */
+  .high-contrast-text {
+    color: hsl(var(--foreground) / 1);
+    font-weight: 600;
+  }
+  
+  .high-contrast-muted {
+    color: hsl(var(--muted-foreground) / 0.95);
+    font-weight: 500;
+  }
+  
+  .high-contrast-accent {
+    color: hsl(var(--accent-foreground) / 1);
+    font-weight: 600;
   }
   
   /* Enhanced container width utilities */
@@ -193,8 +209,8 @@
     -webkit-backdrop-filter: blur(12px);
     z-index: 100;
     border-bottom: 2px solid hsl(var(--border) / 0.8);
-    font-weight: 600;
-    color: hsl(var(--foreground) / 0.9);
+    font-weight: 700;
+    color: hsl(var(--foreground) / 1);
   }
   
   .sticky-table-header {
@@ -212,8 +228,8 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 2px solid hsl(var(--border) / 0.8);
-    font-weight: 600;
-    color: hsl(var(--foreground) / 0.9);
+    font-weight: 700;
+    color: hsl(var(--foreground) / 1);
   }
   
   /* Enhanced table row styling */
@@ -230,8 +246,8 @@
   }
   
   .sticky-table-container tbody tr:hover td {
-    color: hsl(var(--foreground));
-    font-weight: 600;
+    color: hsl(var(--foreground) / 1);
+    font-weight: 700;
   }
   
   /* Enhanced cursor and selection states */
@@ -247,8 +263,8 @@
   
   /* Enhanced table cells */
   .sticky-table-container tbody td {
-    color: hsl(var(--foreground) / 0.9);
-    font-weight: 500;
+    color: hsl(var(--foreground) / 1);
+    font-weight: 600;
     padding: 12px 16px;
   }
 }
