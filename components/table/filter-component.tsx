@@ -16,20 +16,20 @@ export function FilterComponent({ data, statusFilter, onStatusFilterChange }: Fi
   };
 
   return (
-    <Card className="border border-white/30 shadow-none bg-white/30 backdrop-blur-md dark:border-white/20 dark:bg-white/15">
+    <Card className="border border-white/50 shadow-none bg-white/60 backdrop-blur-md dark:border-white/20 dark:bg-white/15">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Grade Color Legend */}
           <div className="lg:col-span-1 flex items-center justify-center">
             <div className="w-full flex items-center">
-              <span className="text-xs font-semibold text-foreground/90 mr-4 whitespace-nowrap">
+              <span className="text-xs font-bold text-foreground mr-4 whitespace-nowrap">
                 Grade Colors:
               </span>
               <div className="grid grid-cols-5 gap-1 flex-1">
                 {GRADE_COLORS.map(({ label, bgColor }: GradeColorConfig) => (
                   <div key={label} className="flex flex-col items-center justify-center">
                     <div className={`w-4 h-4 rounded-full ${bgColor} mb-1`} />
-                    <span className="text-xs text-foreground/80 text-center leading-tight">
+                    <span className="text-xs text-foreground font-semibold text-center leading-tight">
                       {label}
                     </span>
                   </div>
@@ -49,7 +49,7 @@ export function FilterComponent({ data, statusFilter, onStatusFilterChange }: Fi
                 return (
                   <div
                     key={filter.value}
-                    className={`cursor-pointer rounded-lg bg-gradient-to-br ${filter.bg} backdrop-blur-sm border border-white/30 p-2 flex flex-col items-center justify-center transition-all duration-200 hover:scale-105 group select-none ${ring}`}
+                    className={`cursor-pointer rounded-lg bg-gradient-to-br ${filter.bg} backdrop-blur-sm border border-white/50 p-2 flex flex-col items-center justify-center transition-all duration-200 hover:scale-105 group select-none ${ring}`}
                     onClick={() => onStatusFilterChange(filter.value as 'all' | 'Not Started' | 'In Progress' | 'Completed')}
                   >
                     <span className={`text-xl font-bold ${filter.text}`}>

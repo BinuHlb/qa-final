@@ -5,19 +5,19 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-bold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 border border-transparent',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-black ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary/20 backdrop-blur-sm font-bold',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90 backdrop-blur-sm font-black',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive/20 backdrop-blur-sm font-bold',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 backdrop-blur-sm font-black',
         outline:
-          'border border-border/80 bg-background/95 backdrop-blur-sm hover:bg-accent/95 hover:text-accent-foreground hover:border-accent-foreground/50 font-bold',
+          'bg-background/95 backdrop-blur-sm hover:bg-accent/95 hover:text-accent-foreground font-black',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/90 border-secondary/20 backdrop-blur-sm font-bold',
-        ghost: 'hover:bg-accent/80 hover:text-accent-foreground backdrop-blur-sm font-bold border-transparent',
-        link: 'text-primary underline-offset-4 hover:underline hover:text-primary/90 font-bold',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/90 backdrop-blur-sm font-black',
+        ghost: 'hover:bg-accent/80 hover:text-accent-foreground backdrop-blur-sm font-black',
+        link: 'text-primary underline-offset-4 hover:underline hover:text-primary/90 font-black',
       },
       size: {
         default: 'h-10 px-4 py-2',
