@@ -169,12 +169,31 @@
     border-bottom: 1px solid hsl(var(--border));
   }
   
-  /* Ensure table rows have proper spacing */
+  /* Enhanced table row styling */
   .sticky-table-container tbody tr {
     border-bottom: 1px solid hsl(var(--border) / 0.5);
+    transition: all 0.2s ease-in-out;
   }
   
   .sticky-table-container tbody tr:hover {
-    background-color: hsl(var(--muted) / 0.3);
+    background-color: hsl(var(--primary) / 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary) / 0.2);
+  }
+  
+  .sticky-table-container tbody tr:hover td {
+    color: hsl(var(--foreground));
+    font-weight: 500;
+  }
+  
+  /* Enhanced cursor and selection states */
+  .sticky-table-container tbody tr[data-state="selected"] {
+    background-color: hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+  
+  .sticky-table-container tbody tr[data-state="selected"]:hover {
+    background-color: hsl(var(--primary) / 0.15);
   }
 }
