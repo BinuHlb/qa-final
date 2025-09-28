@@ -105,3 +105,36 @@
     @apply text-xs font-semibold tracking-tight;
   }
 }
+
+@layer components {
+  /* Sticky table styles */
+  .sticky-table-container {
+    position: relative;
+    overflow: auto;
+  }
+  
+  .sticky-table-container thead {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: hsl(var(--background));
+  }
+  
+  .sticky-table-container thead th {
+    position: sticky;
+    top: 0;
+    background: hsl(var(--background));
+    z-index: 100;
+  }
+  
+  .sticky-table-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: hsl(var(--background));
+  }
+  
+  .sticky-table-header th {
+    background: hsl(var(--background));
+  }
+}

@@ -5,12 +5,18 @@ import { Navbar } from '@/components/navbar/navbar';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { BackgroundPattern } from '@/components/ui/background-pattern';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'QA Tracker - Professional Quality Assurance Management',
+  title: 'HLB QA Tracker - Professional Quality Assurance Management',
   description: 'Modern QA tracking and management system',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -28,9 +34,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            <div className="min-h-screen bg-background">
+            <BackgroundPattern />
+            <div className="relative min-h-screen">
               <Navbar />
-              <main className="container mx-auto px-4 py-6">
+              <main className="container mx-auto px-4 py-6 relative z-10">
                 {children}
               </main>
             </div>

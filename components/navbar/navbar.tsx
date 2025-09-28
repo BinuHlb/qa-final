@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Bell, Settings, User, LogOut, Menu } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/ui/logo';
 import { useState } from 'react';
 
 const navigation = [
@@ -30,16 +31,13 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/20 bg-white/10 backdrop-blur-md supports-[backdrop-filter]:bg-white/10 dark:border-white/10 dark:bg-white/5">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <span className="text-sm font-bold">QA</span>
-              </div>
-              <span className="font-semibold text-lg">QA Tracker</span>
+            <Link href="/dashboard">
+              <Logo size="md" />
             </Link>
           </div>
 

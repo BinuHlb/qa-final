@@ -268,11 +268,11 @@ export default function QAReviewsPage() {
                   ? data.length
                   : data.filter((r) => r.qaReviewStatus === filter.value).length;
               const isActive = statusFilter === filter.value;
-              const ring = isActive ? 'ring-1 ring-offset-1 ring-blue-500' : '';
+              const ring = isActive ? 'ring-2 ring-offset-1 ring-yellow-500' : '';
               return (
                 <div
                   key={filter.value}
-                  className={`cursor-pointer rounded-md bg-gradient-to-br ${filter.bg} shadow-md p-2 flex flex-col items-center justify-center border ${filter.border} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg group select-none ${ring}`}
+                  className={`cursor-pointer rounded-md bg-gradient-to-br ${filter.bg}  p-2 flex flex-col items-center justify-center border ${filter.border} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg group select-none ${ring}`}
                   onClick={() => setStatusFilter(filter.value as any)}
                 >
                   <span
