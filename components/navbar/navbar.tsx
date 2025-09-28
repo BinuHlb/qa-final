@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { 
@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Bell, Settings, User, LogOut, Menu } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/ui/logo';
+import { useAuth } from '@/components/providers/auth-provider';
 import { useState } from 'react';
 
 const navigation = [
@@ -28,6 +29,7 @@ const navigation = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -70,7 +72,9 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarFallback>
+                      {user ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -84,7 +88,7 @@ export function Navbar() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>
@@ -118,6 +122,17 @@ export function Navbar() {
                   </Button>
                 </Link>
               ))}
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  logout();
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </Button>
             </div>
           </div>
         )}

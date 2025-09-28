@@ -234,11 +234,11 @@ export default function QAReviewsPage() {
       />
 
       {/* Status Filters and Grade Legend */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 bg-accent dark:bg-accent rounded-md p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 border border-white/20 bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-xl dark:border-white/10 dark:bg-white/5">
          {/* Grade Color Legend */}
          <div className="lg:col-span-1 flex items-center justify-center">
           <div className="w-full flex items-center">
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 mr-4 whitespace-nowrap">
+            <span className="text-xs font-semibold text-foreground/90 mr-4 whitespace-nowrap">
               Grade Colors:
             </span>
             <div className="grid grid-cols-5 gap-1 flex-1">
@@ -251,7 +251,7 @@ export default function QAReviewsPage() {
               ].map(({ label, bgColor }) => (
                 <div key={label} className="flex flex-col items-center justify-center">
                   <div className={`w-4 h-4 rounded-full ${bgColor} mb-1`} />
-                  <span className="text-xs text-slate-600 dark:text-slate-400 text-center leading-tight">
+                  <span className="text-xs text-foreground/80 text-center leading-tight">
                     {label}
                   </span>
                 </div>
@@ -272,7 +272,7 @@ export default function QAReviewsPage() {
               return (
                 <div
                   key={filter.value}
-                  className={`cursor-pointer rounded-md bg-gradient-to-br ${filter.bg}  p-2 flex flex-col items-center justify-center border ${filter.border} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg group select-none ${ring}`}
+                  className={`cursor-pointer rounded-lg bg-gradient-to-br ${filter.bg} backdrop-blur-sm border border-white/20 p-2 flex flex-col items-center justify-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg group select-none ${ring}`}
                   onClick={() => setStatusFilter(filter.value as any)}
                 >
                   <span
@@ -280,7 +280,7 @@ export default function QAReviewsPage() {
                   >
                     {count}
                   </span>
-                  <span className={`${getLabelColorClass(filter.color)} text-xs mt-0.5 font-medium text-center leading-tight`}>
+                  <span className={`${getLabelColorClass(filter.color)} text-xs mt-0.5 font-semibold text-center leading-tight`}>
                     {filter.label}
                   </span>
                 </div>

@@ -16,6 +16,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
@@ -42,7 +45,7 @@ const config: Config = {
           foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
+          DEFAULT: '#fbba03',
           foreground: 'hsl(var(--secondary-foreground))',
         },
         

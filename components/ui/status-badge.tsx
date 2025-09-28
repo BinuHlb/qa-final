@@ -15,7 +15,7 @@ export function StatusBadge({ status, variant = 'default', className }: StatusBa
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-white/20 backdrop-blur-sm',
         STATUS_COLORS[status as keyof typeof STATUS_COLORS] || 'bg-gray-100 text-gray-800',
         className
       )}

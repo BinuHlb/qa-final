@@ -19,7 +19,11 @@ const StickyTable = React.forwardRef<HTMLDivElement, StickyTableProps>(
     return (
       <div
         ref={ref}
-        className={cn("w-full rounded-md border sticky-table-container", className)}
+        className={cn(
+          "w-full rounded-md border border-white/20 bg-white/10 backdrop-blur-md shadow-xl sticky-table-container",
+          "dark:border-white/10 dark:bg-white/5",
+          className
+        )}
         style={{ maxHeight }}
         {...props}
       >
@@ -66,7 +70,7 @@ const StickyTableHead = React.forwardRef<
     <TableHead
       ref={ref}
       className={cn(
-        "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        "h-12 px-4 text-left align-middle font-semibold text-foreground/90 [&:has([role=checkbox])]:pr-0",
         className
       )}
       style={{
