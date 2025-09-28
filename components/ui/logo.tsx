@@ -16,7 +16,7 @@ export function Logo({ className, size = 'md', showText = true }: LogoProps) {
   return (
     <div className={cn('flex items-center space-x-2', className)}>
       <div className={cn(
-        'flex items-center justify-center rounded-full bg-teal-600 text-white font-bold',
+        'flex items-center justify-center rounded-full bg-primary text-white font-bold',
         sizeClasses[size]
       )}>
         <span>HLB</span>

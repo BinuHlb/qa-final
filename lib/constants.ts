@@ -40,3 +40,69 @@ export const COUNTRIES = [
 ];
 
 export const GRADINGS = ['1', '2', '3','4', '5'];
+
+// Scalable table configuration
+export const TABLE_CONFIG = {
+  pageSizes: [10, 20, 30, 40, 50],
+  defaultPageSize: 10,
+  maxHeight: '600px',
+  searchPlaceholder: 'Search reviews...',
+  noResultsText: 'No results found.',
+  exportButtonText: 'Export',
+  addButtonText: 'Add New',
+  viewButtonText: 'View',
+  rowsPerPageText: 'Rows per page',
+  showingText: 'Showing',
+  toText: 'to',
+  ofText: 'of',
+  entriesText: 'entries',
+  selectedText: 'selected',
+  pageText: 'Page',
+  ofPageText: 'of'
+};
+
+// Scalable column configuration
+export const COLUMN_CONFIG = {
+  memberFirmIntranetName: { 
+    header: 'Member Firm', 
+    sortable: true, 
+    searchable: true,
+    width: 'w-48'
+  },
+  type: { 
+    header: 'Type', 
+    sortable: true, 
+    searchable: false,
+    width: 'w-32'
+  },
+  reviewerName: { 
+    header: 'Reviewer', 
+    sortable: true, 
+    searchable: true,
+    width: 'w-40'
+  },
+  country: { 
+    header: 'Country', 
+    sortable: true, 
+    searchable: true,
+    width: 'w-32'
+  },
+  currentGrading: { 
+    header: 'Current Grade', 
+    sortable: true, 
+    searchable: false,
+    width: 'w-32'
+  },
+  qaReviewStatus: { 
+    header: 'Status', 
+    sortable: true, 
+    searchable: false,
+    width: 'w-32'
+  },
+  actions: { 
+    header: 'Actions', 
+    sortable: false, 
+    searchable: false,
+    width: 'w-24'
+  }
+};

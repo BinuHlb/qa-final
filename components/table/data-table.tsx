@@ -35,6 +35,7 @@ import { Input } from '@/components/ui/input';
 import { DataTablePagination } from './data-table-pagination';
 import { Settings2, Download, Plus } from 'lucide-react';
 import { DataTableSkeleton } from './data-table-skeleton';
+import { TABLE_CONFIG } from '@/lib/constants';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -51,7 +52,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = TABLE_CONFIG.searchPlaceholder,
   onAdd,
   onExport,
   isLoading = false,
@@ -105,7 +106,7 @@ export function DataTable<TData, TValue>({
           {onExport && (
             <Button variant="outline" size="sm" onClick={onExport}>
               <Download className="mr-2 h-4 w-4" />
-              Export
+              {TABLE_CONFIG.exportButtonText}
             </Button>
           )}
           
@@ -113,7 +114,7 @@ export function DataTable<TData, TValue>({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="ml-auto">
                 <Settings2 className="mr-2 h-4 w-4" />
-                View
+                {TABLE_CONFIG.viewButtonText}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[150px]">
@@ -140,14 +141,14 @@ export function DataTable<TData, TValue>({
           {onAdd && (
             <Button size="sm" onClick={onAdd}>
               <Plus className="mr-2 h-4 w-4" />
-              Add New
+              {TABLE_CONFIG.addButtonText}
             </Button>
           )}
         </div>
       </div>
 
       {/* Table */}
-      <StickyTable maxHeight="600px">
+      <StickyTable maxHeight={TABLE_CONFIG.maxHeight}>
         <StickyTableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -191,7 +192,7 @@ export function DataTable<TData, TValue>({
                 colSpan={columns.length}
                 className="h-24 text-center"
               >
-                No results.
+                {TABLE_CONFIG.noResultsText}
               </TableCell>
             </TableRow>
           )}

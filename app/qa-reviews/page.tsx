@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { AssignReviewDialog } from './assign-form';
 import { QAReviewDetailDialog } from './detail-view';
 import { PageHeader } from '@/components/ui/page-header';
+import { TABLE_CONFIG, COLUMN_CONFIG } from '@/lib/constants';
 
 // The "color" property in STATUS_FILTERS is only used in getLabelColorClass for the label text color.
 // If you want "Total Reviews" to be red, you must add a case for 'red' in getLabelColorClass.
@@ -89,7 +90,7 @@ export default function QAReviewsPage() {
   const columns: ColumnDef<QAReview>[] = [
     {
       accessorKey: 'memberFirmIntranetName',
-      header: 'Member Firm',
+      header: COLUMN_CONFIG.memberFirmIntranetName.header,
       cell: ({ row }) => (
         <div className="font-medium">
           {row.getValue('memberFirmIntranetName')}
@@ -98,21 +99,21 @@ export default function QAReviewsPage() {
     },
     {
       accessorKey: 'type',
-      header: 'Type',
+      header: COLUMN_CONFIG.type.header,
       cell: ({ row }) => (
         <StatusBadge status={row.getValue('type')} variant="short" />
       ),
     },
     {
       accessorKey: 'reviewerName',
-      header: 'Reviewer',
+      header: COLUMN_CONFIG.reviewerName.header,
       cell: ({ row }) => (
         <div className="text-sm">{row.getValue('reviewerName')}</div>
       ),
     },
     {
       accessorKey: 'country',
-      header: 'Country',
+      header: COLUMN_CONFIG.country.header,
       cell: ({ row }) => (
         <div className="text-sm">{row.getValue('country')}</div>
       ),
@@ -151,21 +152,21 @@ export default function QAReviewsPage() {
     },
     {
       accessorKey: 'currentGrading',
-      header: 'Current Grade ',
+      header: COLUMN_CONFIG.currentGrading.header,
       cell: ({ row }) => (
-        
-          <StatusBadge status={row.getValue('currentGrading')} />
+        <StatusBadge status={row.getValue('currentGrading')} />
       ),
     },
     {
       accessorKey: 'qaReviewStatus',
-      header: 'Status',
+      header: COLUMN_CONFIG.qaReviewStatus.header,
       cell: ({ row }) => (
         <StatusBadge status={row.getValue('qaReviewStatus')} />
       ),
     },
     {
       id: 'actions',
+      header: COLUMN_CONFIG.actions.header,
       cell: ({ row }) => {
         const review = row.original;
         return (
@@ -234,7 +235,7 @@ export default function QAReviewsPage() {
       />
 
       {/* Status Filters and Grade Legend */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 border border-white/20 bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-xl dark:border-white/10 dark:bg-white/5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 border border-white/20 bg-white/50 backdrop-blur-md rounded-lg p-4  dark:border-white/10 dark:bg-white/5">
          {/* Grade Color Legend */}
          <div className="lg:col-span-1 flex items-center justify-center">
           <div className="w-full flex items-center">
@@ -300,7 +301,7 @@ export default function QAReviewsPage() {
           setSelectedReview(row);
           setOpen(true);
         }}
-        searchPlaceholder="Search firms..."
+        searchPlaceholder={TABLE_CONFIG.searchPlaceholder}
         onAdd={() => {
           setEditingReview(null);
           setIsDrawerOpen(true);

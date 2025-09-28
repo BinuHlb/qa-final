@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { TABLE_CONFIG } from '@/lib/constants';
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -25,20 +26,20 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex items-center justify-between px-2">
       <div className="flex-1 text-sm text-muted-foreground">
-        Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
+        {TABLE_CONFIG.showingText} {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} {TABLE_CONFIG.toText}{' '}
         {Math.min(
           (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
           table.getFilteredRowModel().rows.length
-        )} of {table.getFilteredRowModel().rows.length} entries
+        )} {TABLE_CONFIG.ofText} {table.getFilteredRowModel().rows.length} {TABLE_CONFIG.entriesText}
         {table.getFilteredSelectedRowModel().rows.length > 0 && (
           <span className="ml-2">
-            ({table.getFilteredSelectedRowModel().rows.length} selected)
+            ({table.getFilteredSelectedRowModel().rows.length} {TABLE_CONFIG.selectedText})
           </span>
         )}
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+          <p className="text-sm font-medium">{TABLE_CONFIG.rowsPerPageText}</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -49,7 +50,7 @@ export function DataTablePagination<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
+              {TABLE_CONFIG.pageSizes.map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>
@@ -58,7 +59,7 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          {TABLE_CONFIG.pageText} {table.getState().pagination.pageIndex + 1} {TABLE_CONFIG.ofPageText}{' '}
           {table.getPageCount()}
         </div>
         <div className="flex items-center space-x-2">
