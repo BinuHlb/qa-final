@@ -59,17 +59,23 @@ export function QAReviewDrawer({
 }: QAReviewDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<QAReviewFormData>({
-    resolver: zodResolver(qaReviewSchema),
-    defaultValues: editingReview
+  // Fix: Only allow reviewerStatus and partnerStatus values that match the schema
+  const getSafeDefaultValues = (): QAReviewFormData => {
+    return editingReview
       ? {
           memberFirmIntranetName: editingReview.memberFirmIntranetName,
           type: editingReview.type,
           memberContact: editingReview.memberContact,
           reviewerName: editingReview.reviewerName,
           country: editingReview.country,
-          reviewerStatus: editingReview.reviewerStatus,
-          partnerStatus: editingReview.partnerStatus,
+          reviewerStatus:
+            editingReview.reviewerStatus === 'Active' || editingReview.reviewerStatus === '⛔'
+              ? editingReview.reviewerStatus
+              : 'Active',
+          partnerStatus:
+            editingReview.partnerStatus === 'Approved' || editingReview.partnerStatus === '⛔'
+              ? editingReview.partnerStatus
+              : 'Approved',
           reviewPlanned: editingReview.reviewPlanned,
           reviewEndDate: editingReview.reviewEndDate,
           currentGrading: editingReview.currentGrading,
@@ -89,7 +95,12 @@ export function QAReviewDrawer({
           currentGrading: '',
           previousGrading: '',
           qaReviewStatus: 'Not Started',
-        },
+        };
+  };
+
+  const form = useForm<QAReviewFormData>({
+    resolver: zodResolver(qaReviewSchema),
+    defaultValues: getSafeDefaultValues(),
   });
 
   const onSubmit = async (data: QAReviewFormData) => {
@@ -145,7 +156,10 @@ export function QAReviewDrawer({
 
               <div>
                 <Label htmlFor="type">Type</Label>
-                <Select onValueChange={(value) => form.setValue('type', value as any)}>
+                <Select
+                  value={form.watch('type')}
+                  onValueChange={(value) => form.setValue('type', value as any)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
@@ -188,7 +202,10 @@ export function QAReviewDrawer({
 
               <div>
                 <Label htmlFor="country">Country</Label>
-                <Select onValueChange={(value) => form.setValue('country', value)}>
+                <Select
+                  value={form.watch('country')}
+                  onValueChange={(value) => form.setValue('country', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
@@ -222,7 +239,10 @@ export function QAReviewDrawer({
 
               <div>
                 <Label htmlFor="currentGrading">Current Grading</Label>
-                <Select onValueChange={(value) => form.setValue('currentGrading', value)}>
+                <Select
+                  value={form.watch('currentGrading')}
+                  onValueChange={(value) => form.setValue('currentGrading', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select grading" />
                   </SelectTrigger>
@@ -238,7 +258,10 @@ export function QAReviewDrawer({
 
               <div>
                 <Label htmlFor="previousGrading">Previous Grading</Label>
-                <Select onValueChange={(value) => form.setValue('previousGrading', value)}>
+                <Select
+                  value={form.watch('previousGrading')}
+                  onValueChange={(value) => form.setValue('previousGrading', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select grading" />
                   </SelectTrigger>
@@ -253,8 +276,53 @@ export function QAReviewDrawer({
               </div>
 
               <div>
+                <Label htmlFor="reviewerStatus">Reviewer Status</Label>
+                <Select
+                  value={form.watch('reviewerStatus')}
+                  onValueChange={(value) => form.setValue('reviewerStatus', value as any)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select reviewer status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REVIEWER_STATUS_OPTIONS.filter(
+                      (status) => status === 'Active' || status === '⛔'
+                    ).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="partnerStatus">Partner Status</Label>
+                <Select
+                  value={form.watch('partnerStatus')}
+                  onValueChange={(value) => form.setValue('partnerStatus', value as any)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select partner status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PARTNER_STATUS_OPTIONS.filter(
+                      (status) => status === 'Approved' || status === '⛔'
+                    ).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label htmlFor="qaReviewStatus">QA Review Status</Label>
-                <Select onValueChange={(value) => form.setValue('qaReviewStatus', value as any)}>
+                <Select
+                  value={form.watch('qaReviewStatus')}
+                  onValueChange={(value) => form.setValue('qaReviewStatus', value as any)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
