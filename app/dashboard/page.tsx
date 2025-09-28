@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import dynamic from 'next/dynamic';
 import { 
   TrendingUp, 
   Users, 
@@ -15,54 +14,24 @@ import {
 } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { mockQAReviews } from '@/lib/mockData';
+import { STATUS_COLORS } from '@/lib/constants';
 
-// Dynamically import recharts components to avoid SSR and type issues
-const ResponsiveContainer = dynamic(
-  () => import('recharts').then(mod => mod.ResponsiveContainer as React.ComponentType<any>),
-  { ssr: false }
-);
-const BarChart = dynamic(
-  () => import('recharts').then(mod => mod.BarChart as React.ComponentType<any>),
-  { ssr: false }
-);
-const Bar = dynamic(
-  () => import('recharts').then(mod => mod.Bar as React.ComponentType<any>),
-  { ssr: false }
-);
-const XAxis = dynamic(
-  () => import('recharts').then(mod => mod.XAxis as React.ComponentType<any>),
-  { ssr: false }
-);
-const YAxis = dynamic(
-  () => import('recharts').then(mod => mod.YAxis as React.ComponentType<any>),
-  { ssr: false }
-);
-const CartesianGrid = dynamic(
-  () => import('recharts').then(mod => mod.CartesianGrid as React.ComponentType<any>),
-  { ssr: false }
-);
-const Tooltip = dynamic(
-  () => import('recharts').then(mod => mod.Tooltip as React.ComponentType<any>),
-  { ssr: false }
-);
-const PieChart = dynamic(
-  () => import('recharts').then(mod => mod.PieChart as React.ComponentType<any>),
-  { ssr: false }
-);
-const Pie = dynamic(
-  () => import('recharts').then(mod => mod.Pie as React.ComponentType<any>),
-  { ssr: false }
-);
-const Cell = dynamic(
-  () => import('recharts').then(mod => mod.Cell as React.ComponentType<any>),
-  { ssr: false }
-);
+import { MonthlyReviewsChart, StatusDistributionChart } from '@/components/charts/dashboard-charts';
 
-const statusData = [
-  { name: 'Not Started', value: 2, color: '#6B7280' },
-  { name: 'In Progress', value: 2, color: '#3B82F6' },
-  { name: 'Completed', value: 1, color: '#10B981' },
-];
+
+// Function to get pie chart colors based on status
+function getPieColors(statusData: Array<{name: string, value: number}>): string[] {
+  // Direct color mapping for better reliability
+  const statusColorMap: { [key: string]: string } = {
+    'Not Started': '#ea580c', // Orange
+    'In Progress': '#3b82f6', // Blue
+    'Completed': '#10B981', // Green
+  };
+  
+  return statusData.map(item => statusColorMap[item.name] || '#6b7280');
+}
+
+// This will be calculated dynamically in the component
 
 const monthlyData = [
   { month: 'Jan', reviews: 12 },
@@ -73,18 +42,22 @@ const monthlyData = [
   { month: 'Jun', reviews: 18 },
 ];
 
-// Helper for Pie label to avoid 'percent' being unknown
-function pieLabel(props: any) {
-  // props: { name: string, percent: number, ... }
-  const { name, percent } = props;
-  return `${name} ${(percent * 100).toFixed(0)}%`;
-}
 
 export default function Dashboard() {
   const totalReviews = mockQAReviews.length;
   const completedReviews = mockQAReviews.filter(r => r.qaReviewStatus === 'Completed').length;
   const inProgressReviews = mockQAReviews.filter(r => r.qaReviewStatus === 'In Progress').length;
   const notStartedReviews = mockQAReviews.filter(r => r.qaReviewStatus === 'Not Started').length;
+
+  // Create dynamic status data based on actual reviews
+  const statusData = [
+    { name: 'Not Started', value: notStartedReviews },
+    { name: 'In Progress', value: inProgressReviews },
+    { name: 'Completed', value: completedReviews },
+  ];
+  
+  // Get dynamic colors for pie chart
+  const pieColors = getPieColors(statusData);
 
   return (
     <div className="space-y-6">
@@ -139,7 +112,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Not Started</CardTitle>
-            <AlertCircle className="h-4 w-4 text-gray-600" />
+            <AlertCircle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{notStartedReviews}</div>
@@ -160,17 +133,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <div style={{ width: '100%', height: 350 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="reviews" fill="#3B82F6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <MonthlyReviewsChart monthlyData={monthlyData} />
           </CardContent>
         </Card>
 
@@ -182,27 +145,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div style={{ width: '100%', height: 350 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={pieLabel}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <StatusDistributionChart statusData={statusData} pieColors={pieColors} />
           </CardContent>
         </Card>
       </div>

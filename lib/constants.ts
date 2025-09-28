@@ -9,7 +9,7 @@ export const PARTNER_STATUS_OPTIONS = ['⛔', 'Approved'] as const;
 export const FIRM_TYPE_OPTIONS = ['Prospect', 'Current Members'] as const;
 
 export const STATUS_COLORS: { [key: string]: string } = {
-  'Not Started': 'bg-gray-100 text-gray-800',
+  'Not Started': 'bg-orange-100 text-orange-800',
   'In Progress': 'bg-blue-100 text-blue-800',
   'Completed': 'bg-green-100 text-green-800',
   'Active': 'bg-green-100 text-green-800',
