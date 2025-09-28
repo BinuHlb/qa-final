@@ -69,53 +69,53 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border border-white/30 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 backdrop-blur-md dark:from-blue-950/20 dark:via-blue-900/20 dark:to-indigo-900/20 dark:border-white/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Reviews</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">Total Reviews</CardTitle>
+            <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalReviews}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{totalReviews}</div>
+            <p className="text-xs text-blue-700/80 dark:text-blue-300/80">
               +2 from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-white/30 bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 backdrop-blur-md dark:from-green-950/20 dark:via-emerald-900/20 dark:to-teal-900/20 dark:border-white/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium text-green-900 dark:text-green-100">Completed</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completedReviews}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-green-900 dark:text-green-100">{completedReviews}</div>
+            <p className="text-xs text-green-700/80 dark:text-green-300/80">
               {totalReviews > 0 ? Math.round((completedReviews / totalReviews) * 100) : 0}% completion rate
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-white/30 bg-gradient-to-br from-orange-50 via-amber-100 to-yellow-100 backdrop-blur-md dark:from-orange-950/20 dark:via-amber-900/20 dark:to-yellow-900/20 dark:border-white/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-orange-900 dark:text-orange-100">In Progress</CardTitle>
+            <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inProgressReviews}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{inProgressReviews}</div>
+            <p className="text-xs text-orange-700/80 dark:text-orange-300/80">
               Currently active
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-white/30 bg-gradient-to-br from-purple-50 via-violet-100 to-fuchsia-100 backdrop-blur-md dark:from-purple-950/20 dark:via-violet-900/20 dark:to-fuchsia-900/20 dark:border-white/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Not Started</CardTitle>
-            <AlertCircle className="h-4 w-4 text-orange-600" />
+            <CardTitle className="text-sm font-medium text-purple-900 dark:text-purple-100">Not Started</CardTitle>
+            <AlertCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{notStartedReviews}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{notStartedReviews}</div>
+            <p className="text-xs text-purple-700/80 dark:text-purple-300/80">
               Pending initiation
             </p>
           </CardContent>
@@ -124,10 +124,10 @@ export default function Dashboard() {
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="col-span-4 border border-white/30 bg-gradient-to-br from-slate-50 via-gray-100 to-zinc-100 backdrop-blur-md dark:from-slate-950/20 dark:via-gray-900/20 dark:to-zinc-900/20 dark:border-white/20">
           <CardHeader>
-            <CardTitle>Monthly Reviews</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-slate-900 dark:text-slate-100">Monthly Reviews</CardTitle>
+            <CardDescription className="text-slate-700 dark:text-slate-300">
               Number of reviews completed each month
             </CardDescription>
           </CardHeader>
@@ -136,10 +136,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        <Card className="col-span-3 border border-white/30 bg-gradient-to-br from-rose-50 via-pink-100 to-rose-100 backdrop-blur-md dark:from-rose-950/20 dark:via-pink-900/20 dark:to-rose-900/20 dark:border-white/20">
           <CardHeader>
-            <CardTitle>Review Status Distribution</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-rose-900 dark:text-rose-100">Review Status Distribution</CardTitle>
+            <CardDescription className="text-rose-700 dark:text-rose-300">
               Current status of all reviews
             </CardDescription>
           </CardHeader>
@@ -150,25 +150,25 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Reviews */}
-      <Card>
+      <Card className="border border-white/30 bg-gradient-to-br from-cyan-50 via-sky-100 to-blue-100 backdrop-blur-md dark:from-cyan-950/20 dark:via-sky-900/20 dark:to-blue-900/20 dark:border-white/20">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Recent QA Reviews</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-cyan-900 dark:text-cyan-100">Recent QA Reviews</CardTitle>
+            <CardDescription className="text-cyan-700 dark:text-cyan-300">
               Latest reviews and their current status
             </CardDescription>
           </div>
-          <Button size="sm">View All</Button>
+          <Button size="sm" className="bg-cyan-600 hover:bg-cyan-700 text-white">View All</Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {mockQAReviews.slice(0, 5).map((review) => (
-              <div key={review.id} className="flex items-center space-x-4 rounded-lg border p-4">
+              <div key={review.id} className="flex items-center space-x-4 rounded-lg border border-white/30 bg-white/40 backdrop-blur-sm p-4 dark:border-white/20 dark:bg-white/20 hover:bg-white/60 dark:hover:bg-white/30 transition-colors">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
+                  <p className="text-sm font-medium text-cyan-900 dark:text-cyan-100 truncate">
                     {review.memberFirmIntranetName}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-cyan-700/80 dark:text-cyan-300/80">
                     {review.reviewerName} • {review.country}
                   </p>
                 </div>

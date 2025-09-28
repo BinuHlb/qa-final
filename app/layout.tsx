@@ -43,7 +43,7 @@ export default function RootLayout({
               <BackgroundPattern />
               <div className="relative min-h-screen">
                 <Navbar />
-                <main className="container mx-auto px-4 py-6 relative z-10">
+                <main className="container mx-auto px-6 py-6 relative z-10">
                   {children}
                 </main>
               </div>

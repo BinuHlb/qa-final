@@ -16,7 +16,7 @@ export function FilterComponent({ data, statusFilter, onStatusFilterChange }: Fi
   };
 
   return (
-    <Card className="border border-white/20 shadow-none bg-white/50 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+    <Card className="border border-white/30 shadow-none bg-white/30 backdrop-blur-md dark:border-white/20 dark:bg-white/15">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Grade Color Legend */}
@@ -49,7 +49,7 @@ export function FilterComponent({ data, statusFilter, onStatusFilterChange }: Fi
                 return (
                   <div
                     key={filter.value}
-                    className={`cursor-pointer rounded-lg bg-gradient-to-br ${filter.bg} backdrop-blur-sm border border-white/20 p-2 flex flex-col items-center justify-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg group select-none ${ring}`}
+                    className={`cursor-pointer rounded-lg bg-gradient-to-br ${filter.bg} backdrop-blur-sm border border-white/30 p-2 flex flex-col items-center justify-center transition-all duration-200 hover:scale-105 group select-none ${ring}`}
                     onClick={() => onStatusFilterChange(filter.value as 'all' | 'Not Started' | 'In Progress' | 'Completed')}
                   >
                     <span className={`text-xl font-bold ${filter.text}`}>

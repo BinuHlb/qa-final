@@ -33,7 +33,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/20 bg-white/10 backdrop-blur-md supports-[backdrop-filter]:bg-white/10 dark:border-white/10 dark:bg-white/5">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/30 bg-white/20 backdrop-blur-md supports-[backdrop-filter]:bg-white/20 dark:border-white/20 dark:bg-white/10">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}

@@ -20,7 +20,7 @@ export function QAReviewDetailDialog({ open, onClose, review }: QAReviewDetailDi
       role="dialog"
     >
       <div
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative border border-gray-200 dark:border-gray-700"
+        className="bg-white/95 dark:bg-gray-900/95 rounded-2xl max-w-2xl w-full p-8 relative border border-gray-300/50 dark:border-gray-600/50 backdrop-blur-md"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

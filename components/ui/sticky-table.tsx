@@ -20,8 +20,8 @@ const StickyTable = React.forwardRef<HTMLDivElement, StickyTableProps>(
       <div
         ref={ref}
         className={cn(
-          "w-full rounded-md border border-white/20 bg-white/10 backdrop-blur-md shadow-xl sticky-table-container overflow-auto",
-          "dark:border-white/10 dark:bg-white/5",
+          "w-full rounded-md border border-white/30 bg-white/20 backdrop-blur-md sticky-table-container overflow-auto",
+          "dark:border-white/20 dark:bg-white/10",
           className
         )}
         style={{ maxHeight, overflow: 'auto' }}
