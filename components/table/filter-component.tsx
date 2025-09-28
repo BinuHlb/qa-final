@@ -16,7 +16,7 @@ export function FilterComponent({ data, statusFilter, onStatusFilterChange }: Fi
   };
 
   return (
-    <Card className="border border-white/20 bg-white/50 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+    <Card className="border border-white/20 shadow-none bg-white/50 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Grade Color Legend */}
