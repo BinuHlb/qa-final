@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { mockQAReviews } from '@/lib/mockData';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function TechnicalDirectorPage() {
   const [pendingApprovals, setPendingApprovals] = useState(
@@ -30,12 +31,10 @@ export default function TechnicalDirectorPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Technical Director</h1>
-        <p className="text-muted-foreground">
-          Review and approve QA assessments requiring director oversight.
-        </p>
-      </div>
+      <PageHeader 
+        title="Technical Director"
+        description="Review and approve QA assessments requiring director oversight."
+      />
 
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

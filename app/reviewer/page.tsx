@@ -17,6 +17,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { Reviewer } from '@/types/qaReview';
 import { mockReviewers } from '@/lib/mockData';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function ReviewerPage() {
   const [data, setData] = useState<Reviewer[]>(mockReviewers);
@@ -109,12 +110,10 @@ export default function ReviewerPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Reviewers</h1>
-        <p className="text-muted-foreground">
-          Manage reviewers and their assignments.
-        </p>
-      </div>
+      <PageHeader 
+        title="Reviewers"
+        description="Manage reviewers and their assignments."
+      />
 
       <DataTable
         columns={columns}

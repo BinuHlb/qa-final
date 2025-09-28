@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { User } from '@/types/qaReview';
 import { mockUsers } from '@/lib/mockData';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function AdminPage() {
   const [data, setData] = useState<User[]>(mockUsers);
@@ -129,12 +130,10 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
-        <p className="text-muted-foreground">
-          Manage users, roles, and system permissions.
-        </p>
-      </div>
+      <PageHeader 
+        title="Admin Panel"
+        description="Manage users, roles, and system permissions."
+      />
 
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-3">

@@ -18,6 +18,7 @@ import { mockQAReviews } from '@/lib/mockData';
 import { toast } from 'sonner';
 import { AssignReviewDialog } from './assign-form';
 import { QAReviewDetailDialog } from './detail-view';
+import { PageHeader } from '@/components/ui/page-header';
 
 // The "color" property in STATUS_FILTERS is only used in getLabelColorClass for the label text color.
 // If you want "Total Reviews" to be red, you must add a case for 'red' in getLabelColorClass.
@@ -227,39 +228,68 @@ export default function QAReviewsPage() {
         review={detailReview}
       />
 
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">QA Reviews</h1>
-        <p className="text-muted-foreground">
-          Manage and track all quality assurance reviews.
-        </p>
-      </div>
+      <PageHeader 
+        title="QA Reviews"
+        description="Manage and track all quality assurance reviews."
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-        {STATUS_FILTERS.map((filter) => {
-          const count =
-            filter.value === 'all'
-              ? data.length
-              : data.filter((r) => r.qaReviewStatus === filter.value).length;
-          const isActive = statusFilter === filter.value;
-          const ring = isActive ? 'ring-1 ring-offset-1 ring-blue-500' : '';
-          return (
-            <div
-              key={filter.value}
-              className={`cursor-pointer rounded-sm bg-gradient-to-br ${filter.bg} shadow-lg p-2 flex flex-col items-center justify-center border ${filter.border} transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl group select-none ${ring}`}
-              onClick={() => setStatusFilter(filter.value as any)}
-            >
-              <span
-                className={`text-3xl font-extrabold ${filter.text}`}
-              >
-                {count}
-              </span>
-              {/* The label below the number uses getLabelColorClass(filter.color) */}
-              <span className={`${getLabelColorClass(filter.color)} text-sm mt-2 font-medium`}>
-                {filter.label}
-              </span>
+      {/* Status Filters and Grade Legend */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 bg-accent dark:bg-accent rounded-md p-4">
+         {/* Grade Color Legend */}
+         <div className="lg:col-span-1 flex items-center justify-center">
+          <div className="w-full flex items-center">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 mr-4 whitespace-nowrap">
+              Grade Colors:
+            </span>
+            <div className="grid grid-cols-5 gap-1 flex-1">
+              {[
+                { label: 'Best', bgColor: 'bg-green-500' },
+                { label: 'Good', bgColor: 'bg-primary' },
+                { label: 'Ok', bgColor: 'bg-yellow-500' },
+                { label: 'Bad', bgColor: 'bg-orange-500' },
+                { label: 'Poor', bgColor: 'bg-red-500' },
+              ].map(({ label, bgColor }) => (
+                <div key={label} className="flex flex-col items-center justify-center">
+                  <div className={`w-4 h-4 rounded-full ${bgColor} mb-1`} />
+                  <span className="text-xs text-slate-600 dark:text-slate-400 text-center leading-tight">
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
-          );
-        })}
+          </div>
+        </div>
+        {/* Status Filter Cards - Reduced to half width */}
+        <div className="lg:col-span-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {STATUS_FILTERS.map((filter) => {
+              const count =
+                filter.value === 'all'
+                  ? data.length
+                  : data.filter((r) => r.qaReviewStatus === filter.value).length;
+              const isActive = statusFilter === filter.value;
+              const ring = isActive ? 'ring-1 ring-offset-1 ring-blue-500' : '';
+              return (
+                <div
+                  key={filter.value}
+                  className={`cursor-pointer rounded-md bg-gradient-to-br ${filter.bg} shadow-md p-2 flex flex-col items-center justify-center border ${filter.border} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg group select-none ${ring}`}
+                  onClick={() => setStatusFilter(filter.value as any)}
+                >
+                  <span
+                    className={`text-xl font-bold ${filter.text}`}
+                  >
+                    {count}
+                  </span>
+                  <span className={`${getLabelColorClass(filter.color)} text-xs mt-0.5 font-medium text-center leading-tight`}>
+                    {filter.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+       
       </div>
 
       <DataTable

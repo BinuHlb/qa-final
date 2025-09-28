@@ -17,6 +17,7 @@ import { mockQAReviews } from '@/lib/mockData';
 import { STATUS_COLORS } from '@/lib/constants';
 
 import { MonthlyReviewsChart, StatusDistributionChart } from '@/components/charts/dashboard-charts';
+import { PageHeader } from '@/components/ui/page-header';
 
 
 // Function to get pie chart colors based on status
@@ -61,12 +62,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome to your QA Tracking dashboard. Here's an overview of your reviews.
-        </p>
-      </div>
+      <PageHeader 
+        title="Dashboard"
+        description="Welcome to your QA Tracking dashboard. Here's an overview of your reviews."
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

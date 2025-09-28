@@ -16,6 +16,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { MemberFirm } from '@/types/qaReview';
 import { mockMemberFirms } from '@/lib/mockData';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function MemberFirmPage() {
   const [data, setData] = useState<MemberFirm[]>(mockMemberFirms);
@@ -117,12 +118,10 @@ export default function MemberFirmPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Member Firms</h1>
-        <p className="text-muted-foreground">
-          Manage member firms and their information.
-        </p>
-      </div>
+      <PageHeader 
+        title="Member Firms"
+        description="Manage member firms and their information."
+      />
 
       <DataTable
         columns={columns}
