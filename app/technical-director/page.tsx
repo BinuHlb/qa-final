@@ -1,34 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
 import { 
-  MoreHorizontal, 
   Eye, 
   Download, 
   CheckCircle, 
-  Clock, 
   AlertCircle,
-  Calendar,
-  User,
-  Building,
-  FileText,
   Star,
   MessageSquare,
   Award,
-  TrendingUp
+  TrendingUp,
+  User,
+  Building,
+  FileText
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { DataTable } from '@/components/table/data-table';
+import { GenericTable } from '@/components/table/generic-table';
+import { createTechnicalDirectorTableLayout } from '@/components/table/table-layouts';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
   Dialog,
@@ -36,16 +27,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
 import { useTechnicalDirectorFiltering } from '@/hooks/use-dynamic-filtering';
 import { toast } from 'sonner';
@@ -57,85 +39,83 @@ const mockTechnicalDirectorReviews = [
     memberFirmIntranetName: 'HLB Singapore',
     memberFirmName: 'HLB Singapore Pte Ltd',
     reviewType: 'Annual Review',
-    reviewPlanned: '2024-01-15',
-    reviewStartDate: '2024-01-20',
-    reviewEndDate: '2024-02-15',
-    qaReviewStatus: 'Technical Director Review' as const,
-    assignedBy: 'Admin User',
-    priority: 'High' as const,
-    reviewer: 'John Smith',
-    technicalDirector: 'Sarah Johnson',
-    reviewerGrade: 'B' as const,
-    technicalDirectorGrade: null as 'A' | 'B' | 'C' | 'D' | null,
-    reviewerComments: 'Review completed. Minor issues identified in compliance procedures.',
-    technicalDirectorComments: '',
-    files: [
-      {
-        id: '1',
-        name: 'Financial_Statements_2023.xlsx',
-        type: 'excel',
-        size: '2.4 MB',
-        status: 'reviewed' as const,
-        uploadedDate: '2024-01-15',
-        downloadUrl: '/files/Financial_Statements_2023.xlsx'
-      },
-      {
-        id: '2',
-        name: 'Reviewer_Assessment.xlsx',
-        type: 'excel',
-        size: '1.2 MB',
-        status: 'reviewed' as const,
-        uploadedDate: '2024-01-25',
-        downloadUrl: '/files/Reviewer_Assessment.xlsx'
-      }
-    ],
-    lastUpdated: '2024-01-25',
-    reviewerCompletedDate: '2024-01-25',
-    technicalDirectorAssignedDate: '2024-01-25'
+    country: 'Singapore',
+    reviewerName: 'Dr. Sarah Johnson',
+    submittedDate: '2024-02-15',
+    status: 'Under Review' as const,
+    qualityScore: 85,
+    complianceScore: 92,
+    overallGrade: 'A' as const,
+    technicalNotes: 'Excellent compliance with international standards',
+    recommendations: ['Continue current practices', 'Consider expanding services']
+  },
+  {
+    id: '2',
+    memberFirmIntranetName: 'HLB Malaysia',
+    memberFirmName: 'HLB Malaysia Sdn Bhd',
+    reviewType: 'Quarterly Review',
+    country: 'Malaysia',
+    reviewerName: 'Prof. Ahmad Rahman',
+    submittedDate: '2024-02-10',
+    status: 'Approved' as const,
+    qualityScore: 78,
+    complianceScore: 85,
+    overallGrade: 'B' as const,
+    technicalNotes: 'Good performance with minor improvements needed',
+    recommendations: ['Enhance documentation process', 'Improve client communication']
+  },
+  {
+    id: '3',
+    memberFirmIntranetName: 'HLB Thailand',
+    memberFirmName: 'HLB Thailand Co Ltd',
+    reviewType: 'Annual Review',
+    country: 'Thailand',
+    reviewerName: 'Dr. Somchai Wong',
+    submittedDate: '2024-02-05',
+    status: 'Needs Revision' as const,
+    qualityScore: 65,
+    complianceScore: 70,
+    overallGrade: 'C' as const,
+    technicalNotes: 'Several areas require improvement',
+    recommendations: ['Revise financial reporting', 'Update compliance procedures', 'Staff training required']
+  },
+  {
+    id: '4',
+    memberFirmIntranetName: 'HLB Indonesia',
+    memberFirmName: 'HLB Indonesia PT',
+    reviewType: 'Quarterly Review',
+    country: 'Indonesia',
+    reviewerName: 'Dr. Budi Santoso',
+    submittedDate: '2024-01-30',
+    status: 'Completed' as const,
+    qualityScore: 88,
+    complianceScore: 90,
+    overallGrade: 'A' as const,
+    technicalNotes: 'Outstanding performance across all metrics',
+    recommendations: ['Maintain excellence', 'Consider mentorship role']
+  },
+  {
+    id: '5',
+    memberFirmIntranetName: 'HLB Vietnam',
+    memberFirmName: 'HLB Vietnam Ltd',
+    reviewType: 'Annual Review',
+    country: 'Vietnam',
+    reviewerName: 'Dr. Nguyen Minh',
+    submittedDate: '2024-01-25',
+    status: 'Under Review' as const,
+    qualityScore: 72,
+    complianceScore: 78,
+    overallGrade: 'B' as const,
+    technicalNotes: 'Solid performance with room for improvement',
+    recommendations: ['Focus on quality control', 'Enhance audit procedures']
   }
 ];
 
-interface FileItem {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  status: 'pending_review' | 'reviewed' | 'uploaded';
-  uploadedDate: string;
-  downloadUrl: string;
-}
-
-interface TechnicalDirectorReview {
-  id: string;
-  memberFirmIntranetName: string;
-  memberFirmName: string;
-  reviewType: string;
-  reviewPlanned: string;
-  reviewStartDate: string;
-  reviewEndDate: string;
-  qaReviewStatus: 'Technical Director Review' | 'Completed' | 'In Progress';
-  assignedBy: string;
-  priority: 'High' | 'Medium' | 'Low';
-  reviewer: string;
-  technicalDirector: string;
-  reviewerGrade: 'A' | 'B' | 'C' | 'D' | null;
-  technicalDirectorGrade: 'A' | 'B' | 'C' | 'D' | null;
-  reviewerComments: string;
-  technicalDirectorComments: string;
-  files: FileItem[];
-  lastUpdated: string;
-  reviewerCompletedDate: string;
-  technicalDirectorAssignedDate: string;
-}
-
-export default function TechnicalDirectorPage() {
-  const [data, setData] = useState<TechnicalDirectorReview[]>(mockTechnicalDirectorReviews);
-  const [selectedReview, setSelectedReview] = useState<TechnicalDirectorReview | null>(null);
+export default function TechnicalDirectorPortal() {
+  const [selectedReview, setSelectedReview] = useState<any>(null);
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
-  const [selectedGrade, setSelectedGrade] = useState<string>('');
-  const [technicalDirectorComments, setTechnicalDirectorComments] = useState('');
-  
-  // Use dynamic filtering hook
+
+  // Use dynamic filtering for reviews
   const {
     filteredData,
     stats,
@@ -145,268 +125,49 @@ export default function TechnicalDirectorPage() {
     handleFilter,
     handleClearFilters,
     getFilterCounts
-  } = useTechnicalDirectorFiltering(data);
-
-  const handleDownloadFile = (file: FileItem) => {
-    toast.success(`Downloading ${file.name}...`);
-    // Simulate download
-    const link = document.createElement('a');
-    link.href = file.downloadUrl;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleFinalizeReview = (reviewId: string) => {
-    if (!selectedGrade) {
-      toast.error('Please select a grade before finalizing');
-      return;
-    }
-
-    setData(prev => prev.map(review => 
-      review.id === reviewId 
-        ? { 
-            ...review, 
-            qaReviewStatus: 'Completed' as const, 
-            technicalDirectorGrade: selectedGrade as 'A' | 'B' | 'C' | 'D',
-            technicalDirectorComments: technicalDirectorComments,
-            lastUpdated: new Date().toISOString().split('T')[0] 
-          }
-        : review
-    ));
-    toast.success('Review finalized and completed');
-    setIsReviewDialogOpen(false);
-    setSelectedGrade('');
-    setTechnicalDirectorComments('');
-  };
-
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'bg-red-500/20 text-red-700 border-red-500/30';
-      case 'Medium': return 'bg-yellow-500/20 text-yellow-700 border-yellow-500/30';
-      case 'Low': return 'bg-green-500/20 text-green-700 border-green-500/30';
-      default: return 'bg-gray-500/20 text-gray-700 border-gray-500/30';
-    }
-  };
-
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case 'A': return 'bg-green-500/20 text-green-700 border-green-500/30';
-      case 'B': return 'bg-blue-500/20 text-blue-700 border-blue-500/30';
-      case 'C': return 'bg-yellow-500/20 text-yellow-700 border-yellow-500/30';
-      case 'D': return 'bg-red-500/20 text-red-700 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-700 border-gray-500/30';
-    }
-  };
+  } = useTechnicalDirectorFiltering(mockTechnicalDirectorReviews);
 
   // Calculate statistics
-  const totalReviews = data.length;
-  const completedReviews = data.filter(r => r.qaReviewStatus === 'Completed').length;
-  const pendingReviews = data.filter(r => r.qaReviewStatus === 'Technical Director Review').length;
-  const avgReviewerGrade = data.reduce((acc, review) => {
-    if (review.reviewerGrade) {
-      const gradeValue = review.reviewerGrade === 'A' ? 4 : review.reviewerGrade === 'B' ? 3 : review.reviewerGrade === 'C' ? 2 : 1;
-      return acc + gradeValue;
+  const totalReviews = mockTechnicalDirectorReviews.length;
+  const underReview = mockTechnicalDirectorReviews.filter(r => r.status === 'Under Review').length;
+  const approved = mockTechnicalDirectorReviews.filter(r => r.status === 'Approved').length;
+  const needsRevision = mockTechnicalDirectorReviews.filter(r => r.status === 'Needs Revision').length;
+  const completed = mockTechnicalDirectorReviews.filter(r => r.status === 'Completed').length;
+
+  // Calculate average scores
+  const avgQualityScore = Math.round(
+    mockTechnicalDirectorReviews.reduce((sum, r) => sum + r.qualityScore, 0) / totalReviews
+  );
+  const avgComplianceScore = Math.round(
+    mockTechnicalDirectorReviews.reduce((sum, r) => sum + r.complianceScore, 0) / totalReviews
+  );
+
+  // Create table layout configuration
+  const tableLayout = createTechnicalDirectorTableLayout(
+    (reviewId) => {
+      const review = mockTechnicalDirectorReviews.find(r => r.id === reviewId);
+      if (review) {
+        setSelectedReview(review);
+        setIsReviewDialogOpen(true);
+      }
+    },
+    (reviewId) => {
+      toast.success('Review approved successfully!');
+    },
+    (reviewId) => {
+      toast.success('Review marked for revision!');
+    },
+    (reviewId) => {
+      toast.success('Downloading review report...');
     }
-    return acc;
-  }, 0) / data.filter(r => r.reviewerGrade).length || 0;
-
-  const columns: ColumnDef<TechnicalDirectorReview>[] = [
-    {
-      accessorKey: 'memberFirmIntranetName',
-      header: 'Member Firm',
-      cell: ({ row }) => (
-        <div className="space-y-1">
-          <div className="font-bold text-foreground">{row.getValue('memberFirmIntranetName')}</div>
-          <div className="text-sm text-muted-foreground font-semibold">
-            {row.original.memberFirmName}
-          </div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'reviewer',
-      header: 'Reviewer',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <User className="h-4 w-4 text-muted-foreground" />
-          <span className="font-semibold">{row.getValue('reviewer')}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'reviewerGrade',
-      header: 'Reviewer Grade',
-      cell: ({ row }) => {
-        const grade = row.getValue('reviewerGrade') as string;
-        return grade ? (
-          <Badge className={getGradeColor(grade)}>
-            Grade {grade}
-          </Badge>
-        ) : (
-          <span className="text-muted-foreground font-semibold">Pending</span>
-        );
-      },
-    },
-    {
-      accessorKey: 'technicalDirectorGrade',
-      header: 'TD Grade',
-      cell: ({ row }) => {
-        const grade = row.getValue('technicalDirectorGrade') as string;
-        return grade ? (
-          <Badge className={getGradeColor(grade)}>
-            Grade {grade}
-          </Badge>
-        ) : (
-          <span className="text-muted-foreground font-semibold">Pending</span>
-        );
-      },
-    },
-    {
-      accessorKey: 'qaReviewStatus',
-      header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.getValue('qaReviewStatus')} />,
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const review = row.original;
-
-  return (
-          <Dialog open={isReviewDialogOpen && selectedReview?.id === review.id} onOpenChange={(open) => {
-            if (open) {
-              setSelectedReview(review);
-              setIsReviewDialogOpen(true);
-              setTechnicalDirectorComments(review.technicalDirectorComments);
-            } else {
-              setIsReviewDialogOpen(false);
-              setSelectedReview(null);
-              setSelectedGrade('');
-              setTechnicalDirectorComments('');
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="font-semibold">
-                <Eye className="mr-2 h-4 w-4" />
-                Review
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-              <DialogHeader>
-                <DialogTitle className="font-black text-xl">Technical Director Review - {review.memberFirmIntranetName}</DialogTitle>
-                <DialogDescription className="font-semibold">
-                  Final review and grading for {review.reviewType}
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="flex-1 overflow-auto space-y-4">
-                {/* Review Information */}
-                <Card className="bg-white/50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-black">Review Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="font-semibold text-muted-foreground">Reviewer:</span>
-                        <p className="font-bold">{review.reviewer}</p>
-                      </div>
-      <div>
-                        <span className="font-semibold text-muted-foreground">Reviewer Grade:</span>
-                        <Badge className={getGradeColor(review.reviewerGrade || '')}>
-                          Grade {review.reviewerGrade || 'Pending'}
-                        </Badge>
-                      </div>
-      </div>
-          </CardContent>
-        </Card>
-
-                {/* Files Section */}
-                <Card className="bg-white/50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-black">Review Files</CardTitle>
-          </CardHeader>
-                  <CardContent className="space-y-4">
-                    {review.files.map((file) => (
-                      <div key={file.id} className="flex items-center justify-between p-4 bg-white/60 rounded-lg border border-white/50">
-                        <div className="flex items-center gap-3">
-                          <FileText className="h-8 w-8 text-green-600" />
-                          <div>
-                            <p className="font-bold text-foreground">{file.name}</p>
-                            <p className="text-sm font-semibold text-muted-foreground">
-                              {file.size} • Uploaded {file.uploadedDate}
-                            </p>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleDownloadFile(file)}
-                          className="font-semibold"
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </Button>
-                      </div>
-                    ))}
-          </CardContent>
-        </Card>
-
-                {/* Final Grade Selection */}
-                <Card className="bg-white/50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-black">Final Grade</CardTitle>
-          </CardHeader>
-          <CardContent>
-                    <Select value={selectedGrade} onValueChange={setSelectedGrade}>
-                      <SelectTrigger className="bg-white/60">
-                        <SelectValue placeholder="Select final grade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="A">Grade A - Excellent</SelectItem>
-                        <SelectItem value="B">Grade B - Good</SelectItem>
-                        <SelectItem value="C">Grade C - Satisfactory</SelectItem>
-                        <SelectItem value="D">Grade D - Needs Improvement</SelectItem>
-                      </SelectContent>
-                    </Select>
-          </CardContent>
-        </Card>
-      </div>
-
-              {/* Dialog Footer */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/30">
-                    <Button 
-                      variant="outline"
-                  onClick={() => setIsReviewDialogOpen(false)}
-                  className="font-semibold"
-                    >
-                  Cancel
-                    </Button>
-                    <Button 
-                  onClick={() => handleFinalizeReview(review.id)}
-                  className="font-semibold bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
-                  disabled={!selectedGrade}
-                    >
-                  <Award className="mr-2 h-4 w-4" />
-                  Finalize Review
-                    </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        );
-      },
-    },
-  ];
+  );
 
   // Get enhanced filter configuration with dynamic counts
-  const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.technicalDirector, data, filters);
+  const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.technicalDirector, mockTechnicalDirectorReviews, filters);
 
   return (
     <div className="space-y-6">
-      {/* Integrated Table Header with Filters */}
+      {/* Main Reviews Table Header with Filters */}
       <TableHeaderWithFilters
         title={enhancedConfig.title}
         description={enhancedConfig.description}
@@ -414,30 +175,288 @@ export default function TechnicalDirectorPage() {
         onSearch={handleSearch}
         onFilter={handleFilter}
         onClearFilters={handleClearFilters}
+        onAdd={() => console.log('Add new review')}
+        addButtonLabel="Add Review"
         filters={enhancedConfig.filters}
+        quickFilters={enhancedConfig.quickFilters}
         activeFilters={filters}
         searchValue={search}
-        totalCount={stats.total}
-        filteredCount={stats.filtered}
+        totalCount={totalReviews}
+        filteredCount={filteredData.length}
       />
 
+      {/* Main Reviews Table */}
+      <GenericTable
+        data={filteredData}
+        layout={tableLayout}
+        isLoading={false}
+      />
 
-      {/* Data Table */}
-      <Card className="bg-white/50">
-          <CardHeader>
-          <CardTitle className="font-black text-xl">Technical Director Reviews</CardTitle>
-          <CardDescription className="font-semibold">
-            Final review and grading of completed assessments
-            </CardDescription>
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Reviews
+            </CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          isLoading={false}
-        />
+            <div className="text-2xl font-bold text-foreground">{totalReviews}</div>
+            <p className="text-xs text-muted-foreground">
+              All submitted reviews
+            </p>
           </CardContent>
         </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Under Review
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{underReview}</div>
+            <p className="text-xs text-muted-foreground">
+              Currently reviewing
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Approved
+            </CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{approved}</div>
+            <p className="text-xs text-muted-foreground">
+              Successfully approved
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Needs Revision
+            </CardTitle>
+            <AlertCircle className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{needsRevision}</div>
+            <p className="text-xs text-muted-foreground">
+              Require improvements
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quality Metrics */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Average Quality Score
+            </CardTitle>
+            <Star className="h-4 w-4 text-purple-600" />
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{avgQualityScore}%</div>
+                    <p className="text-xs text-muted-foreground">
+              Overall quality performance
+            </p>
+        </CardContent>
+      </Card>
+
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Average Compliance Score
+            </CardTitle>
+            <Award className="h-4 w-4 text-indigo-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-indigo-600">{avgComplianceScore}%</div>
+            <p className="text-xs text-muted-foreground">
+              Compliance performance
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Review Details Dialog */}
+      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Review Details - {selectedReview?.memberFirmIntranetName}
+            </DialogTitle>
+            <DialogDescription>
+              Detailed review information and technical assessment
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedReview && (
+            <div className="space-y-4">
+              {/* Review Information */}
+              <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="text-lg">Review Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Review Type:</span>
+                      <span className="ml-2 font-medium">{selectedReview.reviewType}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Country:</span>
+                      <span className="ml-2 font-medium">{selectedReview.country}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Reviewer:</span>
+                      <span className="ml-2 font-medium">{selectedReview.reviewerName}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Submitted:</span>
+                      <span className="ml-2 font-medium">{selectedReview.submittedDate}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Status:</span>
+                      <span className="ml-2">
+                        <Badge className={
+                          selectedReview.status === 'Approved' ? 'bg-green-500 text-white' :
+                          selectedReview.status === 'Under Review' ? 'bg-blue-500 text-white' :
+                          selectedReview.status === 'Needs Revision' ? 'bg-yellow-500 text-white' :
+                          'bg-purple-500 text-white'
+                        }>
+                          {selectedReview.status}
+                      </Badge>
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Overall Grade:</span>
+                      <span className="ml-2">
+                        <Badge className={
+                          selectedReview.overallGrade === 'A' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                          selectedReview.overallGrade === 'B' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                          selectedReview.overallGrade === 'C' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                        }>
+                          <Star className="h-3 w-3 mr-1" />
+                          {selectedReview.overallGrade}
+                        </Badge>
+                      </span>
+                  </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Scores */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Star className="h-5 w-5 text-purple-600" />
+                      Quality Score
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-purple-600 mb-2">{selectedReview.qualityScore}%</div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${selectedReview.qualityScore}%` }}
+                      />
+                </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Award className="h-5 w-5 text-indigo-600" />
+                      Compliance Score
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-indigo-600 mb-2">{selectedReview.complianceScore}%</div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${selectedReview.complianceScore}%` }}
+                      />
+            </div>
+          </CardContent>
+        </Card>
+              </div>
+
+              {/* Technical Notes */}
+              <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-blue-600" />
+                    Technical Notes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{selectedReview.technicalNotes}</p>
+                </CardContent>
+              </Card>
+
+              {/* Recommendations */}
+              <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {selectedReview.recommendations.map((rec: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-muted-foreground">{rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setIsReviewDialogOpen(false)}>
+                  Close
+                </Button>
+                {selectedReview.status === 'Under Review' && (
+                  <>
+                    <Button variant="outline" onClick={() => {
+                      toast.success('Review marked for revision!');
+                      setIsReviewDialogOpen(false);
+                    }}>
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Needs Revision
+                    </Button>
+                    <Button onClick={() => {
+                      toast.success('Review approved successfully!');
+                      setIsReviewDialogOpen(false);
+                    }}>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

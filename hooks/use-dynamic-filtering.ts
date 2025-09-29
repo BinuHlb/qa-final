@@ -2,6 +2,109 @@
 
 import { useState, useMemo, useCallback } from 'react';
 
+// Helper function to match filter values with various data structures
+function matchFilterValue(item: any, key: string, value: string): boolean {
+  // Handle specific field mappings
+  if (key === 'status' || key === 'isActive') {
+    const isActive = item.isActive;
+    if (value === 'active' || value === 'true') return isActive === true;
+    if (value === 'inactive' || value === 'false') return isActive === false;
+    if (item.status) return item.status === value;
+    return false;
+  }
+  
+  if (key === 'processingStatus') {
+    return item.metadata?.processingStatus === value;
+  }
+  
+  if (key === 'qualityScore') {
+    const score = item.qualityScore;
+    if (!score) return false;
+    switch (value) {
+      case '90-100': return score >= 90;
+      case '80-89': return score >= 80 && score < 90;
+      case '70-79': return score >= 70 && score < 80;
+      case '60-69': return score >= 60 && score < 70;
+      case '0-59': return score < 60;
+      default: return false;
+    }
+  }
+  
+  if (key === 'fileSize') {
+    const size = item.fileSize;
+    if (!size) return false;
+    const sizeMB = size / (1024 * 1024);
+    switch (value) {
+      case 'small': return sizeMB < 1;
+      case 'medium': return sizeMB >= 1 && sizeMB < 5;
+      case 'large': return sizeMB >= 5 && sizeMB < 10;
+      case 'xlarge': return sizeMB >= 10;
+      default: return false;
+    }
+  }
+  
+  if (key === 'lastLogin') {
+    const lastLogin = item.lastLogin;
+    if (!lastLogin) return value === 'never';
+    
+    const loginDate = new Date(lastLogin);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    
+    switch (value) {
+      case 'today': return loginDate >= today;
+      case 'week': return loginDate >= thisWeek && loginDate < today;
+      case 'month': return loginDate >= thisMonth && loginDate < thisWeek;
+      case 'never': return false;
+      default: return false;
+    }
+  }
+  
+  if (key === 'joinedDate') {
+    const joinedDate = item.joinedDate;
+    if (!joinedDate) return false;
+    
+    const joinYear = new Date(joinedDate).getFullYear();
+    switch (value) {
+      case '2024': return joinYear === 2024;
+      case '2023': return joinYear === 2023;
+      case 'before-2023': return joinYear < 2023;
+      default: return false;
+    }
+  }
+  
+  if (key === 'uploadedAt') {
+    const uploadedAt = item.uploadedAt;
+    if (!uploadedAt) return false;
+    
+    const uploadDate = new Date(uploadedAt);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    
+    switch (value) {
+      case 'today': return uploadDate >= today;
+      case 'week': return uploadDate >= thisWeek && uploadDate < today;
+      case 'month': return uploadDate >= thisMonth && uploadDate < thisWeek;
+      case 'last-month': return uploadDate >= lastMonth && uploadDate < thisMonth;
+      default: return false;
+    }
+  }
+  
+  // Try different field name variations for other fields
+  const itemValue = item[key] || 
+                   item[`qa${key.charAt(0).toUpperCase() + key.slice(1)}`] || 
+                   item[key.toLowerCase()] ||
+                   item[`qaReview${key.charAt(0).toUpperCase() + key.slice(1)}`];
+  
+  return itemValue === value;
+}
+
 export interface FilterState {
   search: string;
   filters: Record<string, string>;
@@ -43,13 +146,7 @@ export function useDynamicFiltering<T extends Record<string, any>>({
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== 'all') {
         result = result.filter(item => {
-          // Try different field name variations
-          const fieldValue = item[key] || 
-                            item[`qa${key.charAt(0).toUpperCase() + key.slice(1)}`] || 
-                            item[key.toLowerCase()] ||
-                            item[`qaReview${key.charAt(0).toUpperCase() + key.slice(1)}`];
-          
-          return fieldValue === value;
+          return matchFilterValue(item, key, value);
         });
       }
     });
@@ -204,6 +301,30 @@ export function useDashboardFiltering(data: any[], onDataChange?: (data: any[]) 
   return useDynamicFiltering({
     data,
     searchFields: [...SEARCH_FIELDS.dashboard],
+    onDataChange
+  });
+}
+
+export function useUserFiltering(data: any[], onDataChange?: (data: any[]) => void) {
+  return useDynamicFiltering({
+    data,
+    searchFields: ['name', 'email'],
+    onDataChange
+  });
+}
+
+export function useMemberFirmFiltering(data: any[], onDataChange?: (data: any[]) => void) {
+  return useDynamicFiltering({
+    data,
+    searchFields: ['name', 'country', 'contactEmail'],
+    onDataChange
+  });
+}
+
+export function useFileFiltering(data: any[], onDataChange?: (data: any[]) => void) {
+  return useDynamicFiltering({
+    data,
+    searchFields: ['originalName', 'fileName'],
     onDataChange
   });
 }

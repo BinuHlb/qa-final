@@ -31,7 +31,10 @@ import {
 import { mockUsers, mockMemberFirms, mockExcelFiles, mockReviewWorkflows } from '@/lib/mockUserData';
 import { AuthService, AccessControl } from '@/lib/auth';
 import { User, MemberFirm, UserRole, USER_ROLE_LABELS, USER_ROLE_COLORS } from '@/types/user';
-import { DynamicPageHeader, createPageHeaderConfig } from '@/components/ui/dynamic-page-header';
+import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
+import { GenericTable } from '@/components/table/generic-table';
+import { createUserTableLayout, createMemberFirmTableLayout } from '@/components/table/table-layouts';
+import { useUserFiltering, useMemberFirmFiltering } from '@/hooks/use-dynamic-filtering';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -45,6 +48,30 @@ export default function AdminDashboard() {
     totalReviews: 0,
     systemHealth: 'healthy'
   });
+
+  // Use dynamic filtering for users
+  const {
+    filteredData: filteredUsers,
+    stats: userStats,
+    search: userSearch,
+    filters: userFilters,
+    handleSearch: handleUserSearch,
+    handleFilter: handleUserFilter,
+    handleClearFilters: handleClearUserFilters,
+    getFilterCounts: getUserFilterCounts
+  } = useUserFiltering(users);
+
+  // Use dynamic filtering for member firms
+  const {
+    filteredData: filteredMemberFirms,
+    stats: memberFirmStats,
+    search: memberFirmSearch,
+    filters: memberFirmFilters,
+    handleSearch: handleMemberFirmSearch,
+    handleFilter: handleMemberFirmFilter,
+    handleClearFilters: handleClearMemberFirmFilters,
+    getFilterCounts: getMemberFirmFilterCounts
+  } = useMemberFirmFiltering(memberFirms);
 
   useEffect(() => {
     try {
@@ -139,177 +166,137 @@ export default function AdminDashboard() {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
   }
 
-  const dashboardData = {
-    totalUsers: systemStats.totalUsers,
-    activeUsers: systemStats.activeUsers,
-    totalFiles: systemStats.totalFiles,
-    totalReviews: systemStats.totalReviews
-  };
+  // Create table layout configuration
+  const userTableLayout = createUserTableLayout(
+    (userId) => router.push(`/users/${userId}`),
+    handleEditUser,
+    handleDeleteUser
+  );
+
+  // Get enhanced filter configuration with dynamic counts for users
+  const userEnhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.users, users, userFilters);
 
   return (
     <div className="space-y-6">
-      {/* Dynamic Page Header */}
-      <DynamicPageHeader 
-        config={createPageHeaderConfig('admin', dashboardData)}
+      {/* Main User Management Table Header with Filters */}
+      <TableHeaderWithFilters
+        title={userEnhancedConfig.title}
+        description={userEnhancedConfig.description}
+        searchPlaceholder={userEnhancedConfig.searchPlaceholder}
+        onSearch={handleUserSearch}
+        onFilter={handleUserFilter}
+        onClearFilters={handleClearUserFilters}
+        onAdd={handleCreateUser}
+        addButtonLabel="Add User"
+        filters={userEnhancedConfig.filters}
+        quickFilters={userEnhancedConfig.quickFilters}
+        activeFilters={userFilters}
+        searchValue={userSearch}
+        totalCount={users.length}
+        filteredCount={filteredUsers.length}
+      />
+
+      {/* Main User Management Table */}
+      <GenericTable
+        data={filteredUsers}
+        layout={userTableLayout}
+        isLoading={false}
       />
 
       {/* System Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border border-white/30 bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-md dark:border-white/20">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
+            <CardTitle className="text-sm font-medium text-foreground">
               Total Users
             </CardTitle>
-            <Users className="h-4 w-4 text-white/80" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{systemStats.totalUsers}</div>
-            <p className="text-xs text-white/80">
+            <div className="text-2xl font-bold text-foreground">{systemStats.totalUsers}</div>
+            <p className="text-xs text-muted-foreground">
               {systemStats.activeUsers} active
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-white/30 bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-md dark:border-white/20">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
+            <CardTitle className="text-sm font-medium text-foreground">
               System Health
             </CardTitle>
-            <CheckCircle className="h-4 w-4 text-white/80" />
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white capitalize">{systemStats.systemHealth}</div>
-            <p className="text-xs text-white/80">
+            <div className="text-2xl font-bold text-foreground capitalize">{systemStats.systemHealth}</div>
+            <p className="text-xs text-muted-foreground">
               All systems operational
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-white/30 bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-md dark:border-white/20">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
+            <CardTitle className="text-sm font-medium text-foreground">
               Total Files
             </CardTitle>
-            <FileText className="h-4 w-4 text-white/80" />
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{systemStats.totalFiles}</div>
-            <p className="text-xs text-white/80">
+            <div className="text-2xl font-bold text-foreground">{systemStats.totalFiles}</div>
+            <p className="text-xs text-muted-foreground">
               +12 this week
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border border-white/30 bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-md dark:border-white/20">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
+            <CardTitle className="text-sm font-medium text-foreground">
               Active Reviews
             </CardTitle>
-            <Activity className="h-4 w-4 text-white/80" />
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{systemStats.totalReviews}</div>
-            <p className="text-xs text-white/80">
+            <div className="text-2xl font-bold text-foreground">{systemStats.totalReviews}</div>
+            <p className="text-xs text-muted-foreground">
               In progress
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* User Management Section */}
-      <Card className="border border-white/30 bg-gradient-to-br from-slate-50 via-gray-100 to-zinc-100 backdrop-blur-md dark:from-slate-950/20 dark:via-gray-900/20 dark:to-zinc-900/20 dark:border-white/20">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              User Management
-            </CardTitle>
-            <CardDescription className="text-slate-700 dark:text-slate-300">
-              Manage system users and their permissions
-            </CardDescription>
-          </div>
-          <Button onClick={handleCreateUser} className="bg-blue-600 hover:bg-blue-700 text-white">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30 dark:bg-white/20 dark:border-white/20">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                    {user.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-slate-900 dark:text-slate-100">
-                      {user.name}
-                    </h4>
-                    <p className="text-sm text-slate-700/80 dark:text-slate-300/80">
-                      {user.email}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge className={`${USER_ROLE_COLORS[user.role]} text-white`}>
-                        {USER_ROLE_LABELS[user.role]}
-                      </Badge>
-                      <Badge variant={user.isActive ? "default" : "secondary"}>
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => handleEditUser(user.id)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => router.push(`/users/${user.id}`)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => handleDeleteUser(user.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Member Firms Management */}
-      <Card className="border border-white/30 bg-gradient-to-br from-emerald-50 via-teal-100 to-cyan-100 backdrop-blur-md dark:from-emerald-950/20 dark:via-teal-900/20 dark:to-cyan-900/20 dark:border-white/20">
+      {/* Member Firms Overview */}
+      <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <Globe className="h-5 w-5" />
-              Member Firms Management
+              Member Firms Overview
             </CardTitle>
-            <CardDescription className="text-emerald-700 dark:text-emerald-300">
-              Manage member firms and their access
+            <CardDescription className="text-muted-foreground">
+              Quick overview of member firms and their status
             </CardDescription>
           </div>
-          <Button onClick={handleCreateMemberFirm} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+          <Button onClick={handleCreateMemberFirm}>
             <UserPlus className="h-4 w-4 mr-2" />
             Add Firm
           </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {memberFirms.map((firm) => (
-              <div key={firm.id} className="flex items-center justify-between p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30 dark:bg-white/20 dark:border-white/20">
+            {filteredMemberFirms.slice(0, 5).map((firm) => (
+              <div key={firm.id} className="flex items-center justify-between p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
                     {firm.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-medium text-emerald-900 dark:text-emerald-100">
+                    <h4 className="font-medium text-foreground">
                       {firm.name}
                     </h4>
-                    <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80">
+                    <p className="text-sm text-muted-foreground">
                       {firm.country} • {firm.contactEmail}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -332,57 +319,64 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+            {filteredMemberFirms.length > 5 && (
+              <div className="text-center pt-4">
+                <Button variant="outline" onClick={() => router.push('/member-firms')}>
+                  View All Member Firms ({filteredMemberFirms.length})
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* System Administration */}
-      <Card className="border border-white/30 bg-gradient-to-br from-amber-50 via-orange-100 to-yellow-100 backdrop-blur-md dark:from-amber-950/20 dark:via-orange-900/20 dark:to-yellow-900/20 dark:border-white/20">
+      <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
         <CardHeader>
-          <CardTitle className="text-amber-900 dark:text-amber-100 flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Settings className="h-5 w-5" />
             System Administration
           </CardTitle>
-          <CardDescription className="text-amber-700 dark:text-amber-300">
+          <CardDescription className="text-muted-foreground">
             System maintenance and configuration
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30 dark:bg-white/20 dark:border-white/20">
+            <div className="p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
               <div className="flex items-center gap-2 mb-3">
-                <Database className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                <h4 className="font-medium text-amber-900 dark:text-amber-100">Database</h4>
+                <Database className="h-5 w-5 text-muted-foreground" />
+                <h4 className="font-medium text-foreground">Database</h4>
               </div>
               <div className="space-y-2">
                 <Button 
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                  className="w-full"
                   onClick={handleSystemBackup}
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Backup Database
                 </Button>
-                <Button variant="outline" className="w-full border-amber-500 text-amber-700 hover:bg-amber-50">
+                <Button variant="outline" className="w-full">
                   <BarChart3 className="h-4 w-4 mr-2" />
                   View Statistics
                 </Button>
               </div>
             </div>
-            <div className="p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30 dark:bg-white/20 dark:border-white/20">
+            <div className="p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
               <div className="flex items-center gap-2 mb-3">
-                <Server className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                <h4 className="font-medium text-amber-900 dark:text-amber-100">Server</h4>
+                <Server className="h-5 w-5 text-muted-foreground" />
+                <h4 className="font-medium text-foreground">Server</h4>
               </div>
               <div className="space-y-2">
                 <Button 
                   variant="outline" 
-                  className="w-full border-amber-500 text-amber-700 hover:bg-amber-50"
+                  className="w-full"
                   onClick={handleSystemRestart}
                 >
                   <Activity className="h-4 w-4 mr-2" />
                   Restart Services
                 </Button>
-                <Button variant="outline" className="w-full border-amber-500 text-amber-700 hover:bg-amber-50">
+                <Button variant="outline" className="w-full">
                   <Shield className="h-4 w-4 mr-2" />
                   Security Scan
                 </Button>
@@ -390,14 +384,14 @@ export default function AdminDashboard() {
             </div>
           </div>
           
-          <div className="p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30 dark:bg-white/20 dark:border-white/20">
+          <div className="p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
             <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              <h4 className="font-medium text-amber-900 dark:text-amber-100">System Alerts</h4>
+              <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+              <h4 className="font-medium text-foreground">System Alerts</h4>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 rounded bg-amber-100/50 dark:bg-amber-900/20">
-                <span className="text-sm text-amber-800 dark:text-amber-200">Disk usage at 78%</span>
+              <div className="flex items-center justify-between p-2 rounded bg-yellow-100/50 dark:bg-yellow-900/20">
+                <span className="text-sm text-yellow-800 dark:text-yellow-200">Disk usage at 78%</span>
                 <Badge variant="outline" className="text-xs">Warning</Badge>
               </div>
               <div className="flex items-center justify-between p-2 rounded bg-green-100/50 dark:bg-green-900/20">

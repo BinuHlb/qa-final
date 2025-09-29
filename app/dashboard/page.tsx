@@ -31,7 +31,10 @@ import { mockQAReviews } from '@/lib/mockData';
 import { STATUS_COLORS } from '@/lib/constants';
 
 import { MonthlyReviewsChart, StatusDistributionChart } from '@/components/charts/dashboard-charts';
-import { DynamicPageHeader, createPageHeaderConfig } from '@/components/ui/dynamic-page-header';
+import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
+import { GenericTable } from '@/components/table/generic-table';
+import { createQAReviewTableLayout } from '@/components/table/table-layouts';
+import { useQAReviewFiltering } from '@/hooks/use-dynamic-filtering';
 
 
 // Function to get pie chart colors based on status
@@ -60,6 +63,18 @@ const monthlyData = [
 
 export default function Dashboard() {
   const router = useRouter();
+  
+  // Use dynamic filtering for QA Reviews
+  const {
+    filteredData: filteredReviews,
+    stats: reviewStats,
+    search: reviewSearch,
+    filters: reviewFilters,
+    handleSearch: handleReviewSearch,
+    handleFilter: handleReviewFilter,
+    handleClearFilters: handleClearReviewFilters,
+    getFilterCounts: getReviewFilterCounts
+  } = useQAReviewFiltering(mockQAReviews);
   
   const totalReviews = mockQAReviews.length;
   const completedReviews = mockQAReviews.filter(r => r.qaReviewStatus === 'Completed').length;
@@ -140,11 +155,41 @@ export default function Dashboard() {
   // Get dynamic colors for pie chart
   const pieColors = getPieColors(statusData);
 
+  // Create table layout configuration
+  const tableLayout = createQAReviewTableLayout(
+    (review) => router.push(`/qa-reviews`),
+    (review) => router.push(`/qa-reviews`),
+    (review) => router.push(`/qa-reviews`)
+  );
+
+  // Get enhanced filter configuration with dynamic counts
+  const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.qaReviews, mockQAReviews, reviewFilters);
+
   return (
     <div className="space-y-6">
-      {/* Dynamic Page Header */}
-      <DynamicPageHeader 
-        config={createPageHeaderConfig('dashboard', dashboardData)}
+      {/* Main Dashboard Header with Filters */}
+      <TableHeaderWithFilters
+        title="Dashboard"
+        description="Overview of QA reviews, system performance, and recent activities across all member firms."
+        searchPlaceholder="Search reviews by member firm or reviewer..."
+        onSearch={handleReviewSearch}
+        onFilter={handleReviewFilter}
+        onClearFilters={handleClearReviewFilters}
+        onAdd={() => router.push('/qa-reviews')}
+        addButtonLabel="Add QA Review"
+        filters={enhancedConfig.filters}
+        activeFilters={reviewFilters}
+        searchValue={reviewSearch}
+        totalCount={totalReviews}
+        filteredCount={filteredReviews.length}
+      />
+
+      {/* Main QA Reviews Table */}
+      <GenericTable
+        data={filteredReviews}
+        layout={tableLayout}
+        isLoading={false}
+        showGradeLegend={true}
       />
 
       {/* Quick Actions */}
@@ -186,7 +231,7 @@ export default function Dashboard() {
 
       {/* Charts and Activity */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 border border-white/30 bg-gradient-to-br from-slate-50 via-gray-100 to-zinc-100 backdrop-blur-md dark:from-slate-950/20 dark:via-gray-900/20 dark:to-zinc-900/20 dark:border-white/20 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+        <Card className="col-span-4 bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all duration-300 cursor-pointer group">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -214,7 +259,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 border border-white/30 bg-gradient-to-br from-rose-50 via-pink-100 to-rose-100 backdrop-blur-md dark:from-rose-950/20 dark:via-pink-900/20 dark:to-rose-900/20 dark:border-white/20 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+        <Card className="col-span-3 bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all duration-300 cursor-pointer group">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -243,10 +288,10 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent Activity and Reviews */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      {/* Recent Activity */}
+      <div className="grid gap-4 lg:grid-cols-1">
         {/* Recent Activity */}
-        <Card className="lg:col-span-1 border border-white/30 bg-gradient-to-br from-emerald-50 via-teal-100 to-cyan-100 backdrop-blur-md dark:from-emerald-950/20 dark:via-teal-900/20 dark:to-cyan-900/20 dark:border-white/20 hover:shadow-lg transition-all duration-300">
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
               <Activity className="h-5 w-5" />
@@ -283,53 +328,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Reviews */}
-        <Card className="lg:col-span-2 border border-white/30 bg-gradient-to-br from-cyan-50 via-sky-100 to-blue-100 backdrop-blur-md dark:from-cyan-950/20 dark:via-sky-900/20 dark:to-blue-900/20 dark:border-white/20 hover:shadow-lg transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-cyan-900 dark:text-cyan-100 flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Recent QA Reviews
-              </CardTitle>
-              <CardDescription className="text-cyan-700 dark:text-cyan-300">
-                Latest reviews and their current status
-              </CardDescription>
-            </div>
-            <Button 
-              size="sm" 
-              className="bg-cyan-600 hover:bg-cyan-700 text-white transition-all duration-300 hover:scale-105"
-              onClick={() => handleQuickAction('/qa-reviews')}
-            >
-              <ArrowRight className="h-4 w-4 mr-2" />
-              View All
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockQAReviews.slice(0, 5).map((review) => (
-                <div 
-                  key={review.id} 
-                  className="flex items-center space-x-4 rounded-lg border border-white/30 bg-white/40 backdrop-blur-sm p-4 dark:border-white/20 dark:bg-white/20 hover:bg-white/60 dark:hover:bg-white/30 transition-all duration-300 cursor-pointer group hover:scale-[1.02]"
-                  onClick={() => handleQuickAction('/qa-reviews')}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-cyan-900 dark:text-cyan-100 truncate group-hover:text-cyan-800 dark:group-hover:text-cyan-200 transition-colors">
-                      {review.memberFirmIntranetName}
-                    </p>
-                    <p className="text-xs text-cyan-700/80 dark:text-cyan-300/80">
-                      {review.reviewerName} • {review.country}
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <StatusBadge status={review.type} variant="short" />
-                    <StatusBadge status={review.qaReviewStatus} />
-                    <ArrowRight className="h-4 w-4 text-cyan-600/60 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

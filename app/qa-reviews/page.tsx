@@ -111,6 +111,7 @@ export default function QAReviewsPage() {
         }}
         addButtonLabel="Add QA Review"
         filters={enhancedConfig.filters}
+        quickFilters={enhancedConfig.quickFilters}
         activeFilters={filters}
         searchValue={search}
         totalCount={stats.total}

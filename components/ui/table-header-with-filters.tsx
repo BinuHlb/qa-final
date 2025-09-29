@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Filter, X, ChevronDown, Plus, Sparkles, Zap, Target, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Search, Filter, X, ChevronDown, Plus, Sparkles, Zap, Target, Clock, CheckCircle, AlertCircle, Shield, UserCheck } from 'lucide-react';
 import { Input } from './input';
 import { Button } from './button';
 import { Card, CardContent } from './card';
@@ -49,6 +49,13 @@ export interface TableHeaderWithFiltersProps {
   showFilters?: boolean;
   totalCount?: number;
   filteredCount?: number;
+  quickFilters?: {
+    key: string;
+    label: string;
+    value: string;
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+  }[];
 }
 
 export function TableHeaderWithFilters({
@@ -66,7 +73,8 @@ export function TableHeaderWithFilters({
   className = '',
   showFilters = true,
   totalCount,
-  filteredCount
+  filteredCount,
+  quickFilters = []
 }: TableHeaderWithFiltersProps) {
   const [searchQuery, setSearchQuery] = useState(searchValue);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -124,8 +132,8 @@ export function TableHeaderWithFilters({
           <div className="space-y-0">
           {/* Main Header */}
           <div className="p-6 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl font-black text-foreground tracking-tight">
                     {title}
@@ -147,13 +155,15 @@ export function TableHeaderWithFilters({
               </div>
               
               {onAdd && (
-                <Button
-                  onClick={onAdd}
-                  className="flex items-center gap-2 font-semibold"
-                >
-                  <Plus className="h-4 w-4" />
-                  {addButtonLabel}
-                </Button>
+                <div className="flex items-center">
+                  <Button
+                    onClick={onAdd}
+                    className="flex items-center gap-2 font-semibold h-9"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {addButtonLabel}
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -196,67 +206,31 @@ export function TableHeaderWithFilters({
               </div>
 
               {/* Quick Filter Buttons */}
-              {hasFilters && showFilters && (
+              {quickFilters.length > 0 && showFilters && (
                 <div className="flex items-center gap-2">
-                  {/* Quick Status Filters */}
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleQuickFilter('status', 'Not Started')}
-                      className={cn(
-                        "h-8 px-3 text-xs font-semibold transition-all duration-300 hover:scale-105 active:scale-95",
-                        "border-orange-200/50 bg-gradient-to-r from-orange-50 to-orange-100/80 backdrop-blur-sm",
-                        "dark:border-orange-800/50 dark:from-orange-950/50 dark:to-orange-900/80",
-                        "hover:from-orange-100 hover:to-orange-200 hover:border-orange-300 hover:text-orange-800",
-                        "dark:hover:from-orange-900 dark:hover:to-orange-800 dark:hover:border-orange-700",
-                        "shadow-sm hover:shadow-md hover:shadow-orange-200/50 dark:hover:shadow-orange-900/50",
-                        "relative overflow-hidden group",
-                        activeFilters.status === 'Not Started' && "from-orange-200 to-orange-300 border-orange-400 text-orange-900 shadow-lg shadow-orange-300/50 dark:from-orange-800 dark:to-orange-700 dark:border-orange-600 dark:text-orange-100 dark:shadow-orange-900/50"
-                      )}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Clock className="h-3 w-3 mr-1 relative z-10" />
-                      <span className="relative z-10">Not Started</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleQuickFilter('status', 'In Progress')}
-                      className={cn(
-                        "h-8 px-3 text-xs font-semibold transition-all duration-300 hover:scale-105 active:scale-95",
-                        "border-blue-200/50 bg-gradient-to-r from-blue-50 to-blue-100/80 backdrop-blur-sm",
-                        "dark:border-blue-800/50 dark:from-blue-950/50 dark:to-blue-900/80",
-                        "hover:from-blue-100 hover:to-blue-200 hover:border-blue-300 hover:text-blue-800",
-                        "dark:hover:from-blue-900 dark:hover:to-blue-800 dark:hover:border-blue-700",
-                        "shadow-sm hover:shadow-md hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50",
-                        "relative overflow-hidden group",
-                        activeFilters.status === 'In Progress' && "from-blue-200 to-blue-300 border-blue-400 text-blue-900 shadow-lg shadow-blue-300/50 dark:from-blue-800 dark:to-blue-700 dark:border-blue-600 dark:text-blue-100 dark:shadow-blue-900/50"
-                      )}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <AlertCircle className="h-3 w-3 mr-1 relative z-10" />
-                      <span className="relative z-10">In Progress</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleQuickFilter('status', 'Completed')}
-                      className={cn(
-                        "h-8 px-3 text-xs font-semibold transition-all duration-300 hover:scale-105 active:scale-95",
-                        "border-green-200/50 bg-gradient-to-r from-green-50 to-green-100/80 backdrop-blur-sm",
-                        "dark:border-green-800/50 dark:from-green-950/50 dark:to-green-900/80",
-                        "hover:from-green-100 hover:to-green-200 hover:border-green-300 hover:text-green-800",
-                        "dark:hover:from-green-900 dark:hover:to-green-800 dark:hover:border-green-700",
-                        "shadow-sm hover:shadow-md hover:shadow-green-200/50 dark:hover:shadow-green-900/50",
-                        "relative overflow-hidden group",
-                        activeFilters.status === 'Completed' && "from-green-200 to-green-300 border-green-400 text-green-900 shadow-lg shadow-green-300/50 dark:from-green-800 dark:to-green-700 dark:border-green-600 dark:text-green-100 dark:shadow-green-900/50"
-                      )}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <CheckCircle className="h-3 w-3 mr-1 relative z-10" />
-                      <span className="relative z-10">Completed</span>
-                    </Button>
+                    {quickFilters.map((quickFilter) => {
+                      const Icon = quickFilter.icon;
+                      const isActive = activeFilters[quickFilter.key] === quickFilter.value;
+                      return (
+                        <Button
+                          key={`${quickFilter.key}-${quickFilter.value}`}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuickFilter(quickFilter.key, quickFilter.value)}
+                          className={cn(
+                            "h-8 px-3 text-xs font-semibold transition-all duration-300 hover:scale-105 active:scale-95",
+                            "relative overflow-hidden group",
+                            quickFilter.color,
+                            isActive && "ring-2 ring-primary/50 shadow-lg"
+                          )}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 to-primary-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <Icon className="h-3 w-3 mr-1 relative z-10" />
+                          <span className="relative z-10">{quickFilter.label}</span>
+                        </Button>
+                      );
+                    })}
                   </div>
 
                   {/* Advanced Filter Toggle */}
@@ -496,36 +470,72 @@ export const ENHANCED_FILTER_CONFIGS = {
     title: "QA Reviews",
     description: "Manage and track all QA reviews across member firms. Monitor progress, assign reviewers, and maintain quality standards.",
     searchPlaceholder: "Search member firms, reviewers, or countries...",
+    quickFilters: [
+      {
+        key: "qaReviewStatus",
+        label: "Not Started",
+        value: "Not Started",
+        icon: Clock,
+        color: "border-orange-200/50 bg-gradient-to-r from-orange-50 to-orange-100/80 dark:border-orange-800/50 dark:from-orange-950/50 dark:to-orange-900/80 hover:from-orange-100 hover:to-orange-200 hover:border-orange-300 hover:text-orange-800 dark:hover:from-orange-900 dark:hover:to-orange-800 dark:hover:border-orange-700 shadow-sm hover:shadow-md hover:shadow-orange-200/50 dark:hover:shadow-orange-900/50"
+      },
+      {
+        key: "qaReviewStatus",
+        label: "In Progress",
+        value: "In Progress",
+        icon: AlertCircle,
+        color: "border-blue-200/50 bg-gradient-to-r from-blue-50 to-blue-100/80 dark:border-blue-800/50 dark:from-blue-950/50 dark:to-blue-900/80 hover:from-blue-100 hover:to-blue-200 hover:border-blue-300 hover:text-blue-800 dark:hover:from-blue-900 dark:hover:to-blue-800 dark:hover:border-blue-700 shadow-sm hover:shadow-md hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50"
+      },
+      {
+        key: "qaReviewStatus",
+        label: "Completed",
+        value: "Completed",
+        icon: CheckCircle,
+        color: "border-green-200/50 bg-gradient-to-r from-green-50 to-green-100/80 dark:border-green-800/50 dark:from-green-950/50 dark:to-green-900/80 hover:from-green-100 hover:to-green-200 hover:border-green-300 hover:text-green-800 dark:hover:from-green-900 dark:hover:to-green-800 dark:hover:border-green-700 shadow-sm hover:shadow-md hover:shadow-green-200/50 dark:hover:shadow-green-900/50"
+      }
+    ],
     filters: [
       {
-        key: "status",
-        label: "Status",
+        key: "qaReviewStatus",
+        label: "Review Status",
         options: [
-          { key: "status", label: "All Status", value: "all" },
-          { key: "status", label: "Not Started", value: "Not Started" },
-          { key: "status", label: "In Progress", value: "In Progress" },
-          { key: "status", label: "Completed", value: "Completed" }
+          { key: "qaReviewStatus", label: "All Status", value: "all" },
+          { key: "qaReviewStatus", label: "Not Started", value: "Not Started" },
+          { key: "qaReviewStatus", label: "In Progress", value: "In Progress" },
+          { key: "qaReviewStatus", label: "Completed", value: "Completed" }
         ]
       },
       {
         key: "type",
-        label: "Review Type",
+        label: "Member Type",
         options: [
           { key: "type", label: "All Types", value: "all" },
-          { key: "type", label: "Annual Review", value: "Annual Review" },
-          { key: "type", label: "Peer Review", value: "Peer Review" },
-          { key: "type", label: "Special Review", value: "Special Review" }
+          { key: "type", label: "Current Members", value: "Current Members" },
+          { key: "type", label: "Prospect", value: "Prospect" }
+        ]
+      },
+      {
+        key: "country",
+        label: "Country",
+        options: [
+          { key: "country", label: "All Countries", value: "all" },
+          { key: "country", label: "Singapore", value: "Singapore" },
+          { key: "country", label: "Malaysia", value: "Malaysia" },
+          { key: "country", label: "Thailand", value: "Thailand" },
+          { key: "country", label: "Indonesia", value: "Indonesia" },
+          { key: "country", label: "Vietnam", value: "Vietnam" },
+          { key: "country", label: "Philippines", value: "Philippines" }
         ]
       },
       {
         key: "grade",
-        label: "Grade",
+        label: "Final Grade",
         options: [
           { key: "grade", label: "All Grades", value: "all" },
           { key: "grade", label: "Grade A", value: "A" },
           { key: "grade", label: "Grade B", value: "B" },
           { key: "grade", label: "Grade C", value: "C" },
-          { key: "grade", label: "Grade D", value: "D" }
+          { key: "grade", label: "Grade D", value: "D" },
+          { key: "grade", label: "Not Graded", value: null }
         ]
       }
     ]
@@ -534,25 +544,71 @@ export const ENHANCED_FILTER_CONFIGS = {
     title: "My Assigned Reviews",
     description: "Review and manage your assigned QA reviews with file management capabilities. Download files, conduct reviews, and upload completed assessments.",
     searchPlaceholder: "Search assigned reviews by member firm...",
+    quickFilters: [
+      {
+        key: "status",
+        label: "Not Started",
+        value: "Not Started",
+        icon: Clock,
+        color: "border-orange-200/50 bg-gradient-to-r from-orange-50 to-orange-100/80 dark:border-orange-800/50 dark:from-orange-950/50 dark:to-orange-900/80 hover:from-orange-100 hover:to-orange-200 hover:border-orange-300 hover:text-orange-800 dark:hover:from-orange-900 dark:hover:to-orange-800 dark:hover:border-orange-700 shadow-sm hover:shadow-md hover:shadow-orange-200/50 dark:hover:shadow-orange-900/50"
+      },
+      {
+        key: "status",
+        label: "In Progress",
+        value: "In Progress",
+        icon: AlertCircle,
+        color: "border-blue-200/50 bg-gradient-to-r from-blue-50 to-blue-100/80 dark:border-blue-800/50 dark:from-blue-950/50 dark:to-blue-900/80 hover:from-blue-100 hover:to-blue-200 hover:border-blue-300 hover:text-blue-800 dark:hover:from-blue-900 dark:hover:to-blue-800 dark:hover:border-blue-700 shadow-sm hover:shadow-md hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50"
+      },
+      {
+        key: "status",
+        label: "Completed",
+        value: "Completed",
+        icon: CheckCircle,
+        color: "border-green-200/50 bg-gradient-to-r from-green-50 to-green-100/80 dark:border-green-800/50 dark:from-green-950/50 dark:to-green-900/80 hover:from-green-100 hover:to-green-200 hover:border-green-300 hover:text-green-800 dark:hover:from-green-900 dark:hover:to-green-800 dark:hover:border-green-700 shadow-sm hover:shadow-md hover:shadow-green-200/50 dark:hover:shadow-green-900/50"
+      }
+    ],
     filters: [
       {
         key: "status",
-        label: "Status",
+        label: "Review Status",
         options: [
           { key: "status", label: "All Status", value: "all" },
           { key: "status", label: "Not Started", value: "Not Started" },
           { key: "status", label: "In Progress", value: "In Progress" },
-          { key: "status", label: "Completed", value: "Completed" }
+          { key: "status", label: "Completed", value: "Completed" },
+          { key: "status", label: "Overdue", value: "Overdue" }
         ]
       },
       {
         key: "priority",
-        label: "Priority",
+        label: "Priority Level",
         options: [
           { key: "priority", label: "All Priorities", value: "all" },
-          { key: "priority", label: "High", value: "High" },
-          { key: "priority", label: "Medium", value: "Medium" },
-          { key: "priority", label: "Low", value: "Low" }
+          { key: "priority", label: "High Priority", value: "High" },
+          { key: "priority", label: "Medium Priority", value: "Medium" },
+          { key: "priority", label: "Low Priority", value: "Low" }
+        ]
+      },
+      {
+        key: "reviewType",
+        label: "Review Type",
+        options: [
+          { key: "reviewType", label: "All Types", value: "all" },
+          { key: "reviewType", label: "Annual Review", value: "Annual Review" },
+          { key: "reviewType", label: "Quarterly Review", value: "Quarterly Review" },
+          { key: "reviewType", label: "Special Review", value: "Special Review" }
+        ]
+      },
+      {
+        key: "country",
+        label: "Country",
+        options: [
+          { key: "country", label: "All Countries", value: "all" },
+          { key: "country", label: "Singapore", value: "Singapore" },
+          { key: "country", label: "Malaysia", value: "Malaysia" },
+          { key: "country", label: "Thailand", value: "Thailand" },
+          { key: "country", label: "Indonesia", value: "Indonesia" },
+          { key: "country", label: "Vietnam", value: "Vietnam" }
         ]
       }
     ]
@@ -561,25 +617,262 @@ export const ENHANCED_FILTER_CONFIGS = {
     title: "Technical Director Reviews",
     description: "Final review and grading of completed QA reviews from reviewers. Ensure quality standards and provide final assessments.",
     searchPlaceholder: "Search reviews by member firm or reviewer...",
+    quickFilters: [
+      {
+        key: "status",
+        label: "Under Review",
+        value: "Under Review",
+        icon: AlertCircle,
+        color: "border-blue-200/50 bg-gradient-to-r from-blue-50 to-blue-100/80 dark:border-blue-800/50 dark:from-blue-950/50 dark:to-blue-900/80 hover:from-blue-100 hover:to-blue-200 hover:border-blue-300 hover:text-blue-800 dark:hover:from-blue-900 dark:hover:to-blue-800 dark:hover:border-blue-700 shadow-sm hover:shadow-md hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50"
+      },
+      {
+        key: "status",
+        label: "Approved",
+        value: "Approved",
+        icon: CheckCircle,
+        color: "border-green-200/50 bg-gradient-to-r from-green-50 to-green-100/80 dark:border-green-800/50 dark:from-green-950/50 dark:to-green-900/80 hover:from-green-100 hover:to-green-200 hover:border-green-300 hover:text-green-800 dark:hover:from-green-900 dark:hover:to-green-800 dark:hover:border-green-700 shadow-sm hover:shadow-md hover:shadow-green-200/50 dark:hover:shadow-green-900/50"
+      },
+      {
+        key: "status",
+        label: "Needs Revision",
+        value: "Needs Revision",
+        icon: Clock,
+        color: "border-orange-200/50 bg-gradient-to-r from-orange-50 to-orange-100/80 dark:border-orange-800/50 dark:from-orange-950/50 dark:to-orange-900/80 hover:from-orange-100 hover:to-orange-200 hover:border-orange-300 hover:text-orange-800 dark:hover:from-orange-900 dark:hover:to-orange-800 dark:hover:border-orange-700 shadow-sm hover:shadow-md hover:shadow-orange-200/50 dark:hover:shadow-orange-900/50"
+      }
+    ],
     filters: [
       {
         key: "status",
-        label: "Status",
+        label: "Review Status",
         options: [
           { key: "status", label: "All Status", value: "all" },
-          { key: "status", label: "Pending Review", value: "Technical Director Review" },
+          { key: "status", label: "Under Review", value: "Under Review" },
+          { key: "status", label: "Approved", value: "Approved" },
+          { key: "status", label: "Needs Revision", value: "Needs Revision" },
           { key: "status", label: "Completed", value: "Completed" }
         ]
       },
       {
-        key: "reviewerGrade",
-        label: "Reviewer Grade",
+        key: "overallGrade",
+        label: "Overall Grade",
         options: [
-          { key: "reviewerGrade", label: "All Grades", value: "all" },
-          { key: "reviewerGrade", label: "Grade A", value: "A" },
-          { key: "reviewerGrade", label: "Grade B", value: "B" },
-          { key: "reviewerGrade", label: "Grade C", value: "C" },
-          { key: "reviewerGrade", label: "Grade D", value: "D" }
+          { key: "overallGrade", label: "All Grades", value: "all" },
+          { key: "overallGrade", label: "Grade A", value: "A" },
+          { key: "overallGrade", label: "Grade B", value: "B" },
+          { key: "overallGrade", label: "Grade C", value: "C" },
+          { key: "overallGrade", label: "Grade D", value: "D" },
+          { key: "overallGrade", label: "Grade F", value: "F" }
+        ]
+      },
+      {
+        key: "qualityScore",
+        label: "Quality Score",
+        options: [
+          { key: "qualityScore", label: "All Scores", value: "all" },
+          { key: "qualityScore", label: "Excellent (90-100)", value: "90-100" },
+          { key: "qualityScore", label: "Good (80-89)", value: "80-89" },
+          { key: "qualityScore", label: "Fair (70-79)", value: "70-79" },
+          { key: "qualityScore", label: "Poor (60-69)", value: "60-69" },
+          { key: "qualityScore", label: "Very Poor (<60)", value: "0-59" }
+        ]
+      },
+      {
+        key: "country",
+        label: "Country",
+        options: [
+          { key: "country", label: "All Countries", value: "all" },
+          { key: "country", label: "Singapore", value: "Singapore" },
+          { key: "country", label: "Malaysia", value: "Malaysia" },
+          { key: "country", label: "Thailand", value: "Thailand" },
+          { key: "country", label: "Indonesia", value: "Indonesia" },
+          { key: "country", label: "Vietnam", value: "Vietnam" }
+        ]
+      }
+    ]
+  },
+  users: {
+    title: "User Management",
+    description: "Manage system users and their permissions. Add, edit, and monitor user accounts.",
+    searchPlaceholder: "Search users by name or email...",
+    quickFilters: [
+      {
+        key: "role",
+        label: "Admin",
+        value: "admin",
+        icon: Shield,
+        color: "border-red-200/50 bg-gradient-to-r from-red-50 to-red-100/80 dark:border-red-800/50 dark:from-red-950/50 dark:to-red-900/80 hover:from-red-100 hover:to-red-200 hover:border-red-300 hover:text-red-800 dark:hover:from-red-900 dark:hover:to-red-800 dark:hover:border-red-700 shadow-sm hover:shadow-md hover:shadow-red-200/50 dark:hover:shadow-red-900/50"
+      },
+      {
+        key: "role",
+        label: "Reviewer",
+        value: "reviewer",
+        icon: UserCheck,
+        color: "border-purple-200/50 bg-gradient-to-r from-purple-50 to-purple-100/80 dark:border-purple-800/50 dark:from-purple-950/50 dark:to-purple-900/80 hover:from-purple-100 hover:to-purple-200 hover:border-purple-300 hover:text-purple-800 dark:hover:from-purple-900 dark:hover:to-purple-800 dark:hover:border-purple-700 shadow-sm hover:shadow-md hover:shadow-purple-200/50 dark:hover:shadow-purple-900/50"
+      },
+      {
+        key: "isActive",
+        label: "Active Users",
+        value: "true",
+        icon: CheckCircle,
+        color: "border-green-200/50 bg-gradient-to-r from-green-50 to-green-100/80 dark:border-green-800/50 dark:from-green-950/50 dark:to-green-900/80 hover:from-green-100 hover:to-green-200 hover:border-green-300 hover:text-green-800 dark:hover:from-green-900 dark:hover:to-green-800 dark:hover:border-green-700 shadow-sm hover:shadow-md hover:shadow-green-200/50 dark:hover:shadow-green-900/50"
+      }
+    ],
+    filters: [
+      {
+        key: "role",
+        label: "User Role",
+        options: [
+          { key: "role", label: "All Roles", value: "all" },
+          { key: "role", label: "Admin", value: "admin" },
+          { key: "role", label: "Technical Director", value: "technical_director" },
+          { key: "role", label: "Reviewer", value: "reviewer" },
+          { key: "role", label: "Member Firm", value: "member_firm" },
+          { key: "role", label: "CEO", value: "ceo" }
+        ]
+      },
+      {
+        key: "isActive",
+        label: "Account Status",
+        options: [
+          { key: "isActive", label: "All Users", value: "all" },
+          { key: "isActive", label: "Active Users", value: "true" },
+          { key: "isActive", label: "Inactive Users", value: "false" }
+        ]
+      },
+      {
+        key: "lastLogin",
+        label: "Last Login",
+        options: [
+          { key: "lastLogin", label: "All Users", value: "all" },
+          { key: "lastLogin", label: "Today", value: "today" },
+          { key: "lastLogin", label: "This Week", value: "week" },
+          { key: "lastLogin", label: "This Month", value: "month" },
+          { key: "lastLogin", label: "Never", value: "never" }
+        ]
+      }
+    ]
+  },
+  memberFirms: {
+    title: "Member Firms",
+    description: "Manage member firms and their access. Monitor submissions and compliance.",
+    searchPlaceholder: "Search member firms by name or country...",
+    filters: [
+      {
+        key: "type",
+        label: "Member Type",
+        options: [
+          { key: "type", label: "All Types", value: "all" },
+          { key: "type", label: "Current Members", value: "Current Members" },
+          { key: "type", label: "Prospect", value: "Prospect" }
+        ]
+      },
+      {
+        key: "isActive",
+        label: "Firm Status",
+        options: [
+          { key: "isActive", label: "All Firms", value: "all" },
+          { key: "isActive", label: "Active Firms", value: "true" },
+          { key: "isActive", label: "Inactive Firms", value: "false" }
+        ]
+      },
+      {
+        key: "country",
+        label: "Country",
+        options: [
+          { key: "country", label: "All Countries", value: "all" },
+          { key: "country", label: "Singapore", value: "Singapore" },
+          { key: "country", label: "Malaysia", value: "Malaysia" },
+          { key: "country", label: "Thailand", value: "Thailand" },
+          { key: "country", label: "Indonesia", value: "Indonesia" },
+          { key: "country", label: "Vietnam", value: "Vietnam" },
+          { key: "country", label: "Philippines", value: "Philippines" },
+          { key: "country", label: "Australia", value: "Australia" },
+          { key: "country", label: "New Zealand", value: "New Zealand" }
+        ]
+      },
+      {
+        key: "joinedDate",
+        label: "Joined Date",
+        options: [
+          { key: "joinedDate", label: "All Time", value: "all" },
+          { key: "joinedDate", label: "This Year", value: "2024" },
+          { key: "joinedDate", label: "Last Year", value: "2023" },
+          { key: "joinedDate", label: "Before 2023", value: "before-2023" }
+        ]
+      }
+    ]
+  },
+  files: {
+    title: "File Submissions",
+    description: "Track and manage your submitted Excel files. Monitor review status and download processed files.",
+    searchPlaceholder: "Search files by name...",
+    quickFilters: [
+      {
+        key: "status",
+        label: "Uploaded",
+        value: "uploaded",
+        icon: Clock,
+        color: "border-orange-200/50 bg-gradient-to-r from-orange-50 to-orange-100/80 dark:border-orange-800/50 dark:from-orange-950/50 dark:to-orange-900/80 hover:from-orange-100 hover:to-orange-200 hover:border-orange-300 hover:text-orange-800 dark:hover:from-orange-900 dark:hover:to-orange-800 dark:hover:border-orange-700 shadow-sm hover:shadow-md hover:shadow-orange-200/50 dark:hover:shadow-orange-900/50"
+      },
+      {
+        key: "status",
+        label: "Under Review",
+        value: "under_review",
+        icon: AlertCircle,
+        color: "border-blue-200/50 bg-gradient-to-r from-blue-50 to-blue-100/80 dark:border-blue-800/50 dark:from-blue-950/50 dark:to-blue-900/80 hover:from-blue-100 hover:to-blue-200 hover:border-blue-300 hover:text-blue-800 dark:hover:from-blue-900 dark:hover:to-blue-800 dark:hover:border-blue-700 shadow-sm hover:shadow-md hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50"
+      },
+      {
+        key: "status",
+        label: "Approved",
+        value: "approved",
+        icon: CheckCircle,
+        color: "border-green-200/50 bg-gradient-to-r from-green-50 to-green-100/80 dark:border-green-800/50 dark:from-green-950/50 dark:to-green-900/80 hover:from-green-100 hover:to-green-200 hover:border-green-300 hover:text-green-800 dark:hover:from-green-900 dark:hover:to-green-800 dark:hover:border-green-700 shadow-sm hover:shadow-md hover:shadow-green-200/50 dark:hover:shadow-green-900/50"
+      }
+    ],
+    filters: [
+      {
+        key: "status",
+        label: "Review Status",
+        options: [
+          { key: "status", label: "All Status", value: "all" },
+          { key: "status", label: "Uploaded", value: "uploaded" },
+          { key: "status", label: "Under Review", value: "under_review" },
+          { key: "status", label: "Reviewed", value: "reviewed" },
+          { key: "status", label: "Approved", value: "approved" },
+          { key: "status", label: "Rejected", value: "rejected" }
+        ]
+      },
+      {
+        key: "processingStatus",
+        label: "Processing Status",
+        options: [
+          { key: "processingStatus", label: "All Processing", value: "all" },
+          { key: "processingStatus", label: "Pending", value: "pending" },
+          { key: "processingStatus", label: "Processing", value: "processing" },
+          { key: "processingStatus", label: "Completed", value: "completed" },
+          { key: "processingStatus", label: "Failed", value: "failed" }
+        ]
+      },
+      {
+        key: "fileSize",
+        label: "File Size",
+        options: [
+          { key: "fileSize", label: "All Sizes", value: "all" },
+          { key: "fileSize", label: "Small (<1MB)", value: "small" },
+          { key: "fileSize", label: "Medium (1-5MB)", value: "medium" },
+          { key: "fileSize", label: "Large (5-10MB)", value: "large" },
+          { key: "fileSize", label: "Very Large (>10MB)", value: "xlarge" }
+        ]
+      },
+      {
+        key: "uploadedAt",
+        label: "Upload Date",
+        options: [
+          { key: "uploadedAt", label: "All Dates", value: "all" },
+          { key: "uploadedAt", label: "Today", value: "today" },
+          { key: "uploadedAt", label: "This Week", value: "week" },
+          { key: "uploadedAt", label: "This Month", value: "month" },
+          { key: "uploadedAt", label: "Last Month", value: "last-month" }
         ]
       }
     ]
@@ -588,7 +881,7 @@ export const ENHANCED_FILTER_CONFIGS = {
 
 // Utility function to update filter counts dynamically
 export function updateFilterCounts(
-  config: typeof ENHANCED_FILTER_CONFIGS.qaReviews,
+  config: any,
   data: any[],
   currentFilters: Record<string, string>
 ) {
@@ -612,16 +905,14 @@ export function updateFilterCounts(
           Object.entries(tempFilters).forEach(([key, value]) => {
             if (value && value !== 'all') {
               filteredData = filteredData.filter(item => {
-                const itemValue = item[key] || item[`qa${key.charAt(0).toUpperCase() + key.slice(1)}`] || item[key.toLowerCase()];
-                return itemValue === value;
+                return matchFilterValue(item, key, value);
               });
             }
           });
           
           // Count items matching this option
           count = filteredData.filter(item => {
-            const itemValue = item[filter.key] || item[`qa${filter.key.charAt(0).toUpperCase() + filter.key.slice(1)}`] || item[filter.key.toLowerCase()];
-            return itemValue === option.value;
+            return matchFilterValue(item, filter.key, option.value);
           }).length;
         }
         
@@ -629,4 +920,107 @@ export function updateFilterCounts(
       })
     }))
   };
+}
+
+// Helper function to match filter values with various data structures
+function matchFilterValue(item: any, key: string, value: string): boolean {
+  // Handle specific field mappings
+  if (key === 'status' || key === 'isActive') {
+    const isActive = item.isActive;
+    if (value === 'active' || value === 'true') return isActive === true;
+    if (value === 'inactive' || value === 'false') return isActive === false;
+    if (item.status) return item.status === value;
+    return false;
+  }
+  
+  if (key === 'processingStatus') {
+    return item.metadata?.processingStatus === value;
+  }
+  
+  if (key === 'qualityScore') {
+    const score = item.qualityScore;
+    if (!score) return false;
+    switch (value) {
+      case '90-100': return score >= 90;
+      case '80-89': return score >= 80 && score < 90;
+      case '70-79': return score >= 70 && score < 80;
+      case '60-69': return score >= 60 && score < 70;
+      case '0-59': return score < 60;
+      default: return false;
+    }
+  }
+  
+  if (key === 'fileSize') {
+    const size = item.fileSize;
+    if (!size) return false;
+    const sizeMB = size / (1024 * 1024);
+    switch (value) {
+      case 'small': return sizeMB < 1;
+      case 'medium': return sizeMB >= 1 && sizeMB < 5;
+      case 'large': return sizeMB >= 5 && sizeMB < 10;
+      case 'xlarge': return sizeMB >= 10;
+      default: return false;
+    }
+  }
+  
+  if (key === 'lastLogin') {
+    const lastLogin = item.lastLogin;
+    if (!lastLogin) return value === 'never';
+    
+    const loginDate = new Date(lastLogin);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    
+    switch (value) {
+      case 'today': return loginDate >= today;
+      case 'week': return loginDate >= thisWeek && loginDate < today;
+      case 'month': return loginDate >= thisMonth && loginDate < thisWeek;
+      case 'never': return false;
+      default: return false;
+    }
+  }
+  
+  if (key === 'joinedDate') {
+    const joinedDate = item.joinedDate;
+    if (!joinedDate) return false;
+    
+    const joinYear = new Date(joinedDate).getFullYear();
+    switch (value) {
+      case '2024': return joinYear === 2024;
+      case '2023': return joinYear === 2023;
+      case 'before-2023': return joinYear < 2023;
+      default: return false;
+    }
+  }
+  
+  if (key === 'uploadedAt') {
+    const uploadedAt = item.uploadedAt;
+    if (!uploadedAt) return false;
+    
+    const uploadDate = new Date(uploadedAt);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const thisWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    
+    switch (value) {
+      case 'today': return uploadDate >= today;
+      case 'week': return uploadDate >= thisWeek && uploadDate < today;
+      case 'month': return uploadDate >= thisMonth && uploadDate < thisWeek;
+      case 'last-month': return uploadDate >= lastMonth && uploadDate < thisMonth;
+      default: return false;
+    }
+  }
+  
+  // Try different field name variations for other fields
+  const itemValue = item[key] || 
+                   item[`qa${key.charAt(0).toUpperCase() + key.slice(1)}`] || 
+                   item[key.toLowerCase()] ||
+                   item[`qaReview${key.charAt(0).toUpperCase() + key.slice(1)}`];
+  
+  return itemValue === value;
 }

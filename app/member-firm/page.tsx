@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { 
+import {
   Upload, 
   FileText,
   Download, 
@@ -24,14 +24,18 @@ import {
   RefreshCw,
   Plus,
   Filter,
-  Search
+  Search,
+  Globe
 } from 'lucide-react';
 import { FileUploadComponent } from '@/components/file-upload/FileUploadComponent';
 import { mockExcelFiles, mockUsers, mockMemberFirms } from '@/lib/mockUserData';
 import { AuthService, AccessControl } from '@/lib/auth';
 import { ExcelFile } from '@/types/fileManagement';
 import { FileStatus } from '@/types/user';
-import { DynamicPageHeader, createPageHeaderConfig } from '@/components/ui/dynamic-page-header';
+import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
+import { GenericTable } from '@/components/table/generic-table';
+import { createMemberFirmTableLayout, createFileTableLayout } from '@/components/table/table-layouts';
+import { useMemberFirmFiltering, useFileFiltering } from '@/hooks/use-dynamic-filtering';
 
 export default function MemberFirmPortal() {
   const router = useRouter();
@@ -44,6 +48,18 @@ export default function MemberFirmPortal() {
     approvedFiles: 0,
     avgReviewTime: 0
   });
+
+  // Use dynamic filtering for files
+  const {
+    filteredData: filteredFiles,
+    stats: fileStats,
+    search: fileSearch,
+    filters: fileFilters,
+    handleSearch: handleFileSearch,
+    handleFilter: handleFileFilter,
+    handleClearFilters: handleClearFileFilters,
+    getFilterCounts: getFileFilterCounts
+  } = useFileFiltering(uploadedFiles);
 
   useEffect(() => {
     try {
@@ -165,126 +181,205 @@ export default function MemberFirmPortal() {
     );
   }
 
-  const dashboardData = {
-    filesSubmitted: stats.filesSubmitted,
-    underReview: stats.underReview,
-    approvedFiles: stats.approvedFiles,
-    avgReviewTime: stats.avgReviewTime
-  };
+  // Create table layout configuration for files
+  const fileTableLayout = createFileTableLayout(
+    (fileId) => handleViewFile(fileId),
+    (fileId) => handleDownloadFile(fileId),
+    (fileId) => console.log('Delete file:', fileId)
+  );
+
+  // Get enhanced filter configuration with dynamic counts for files
+  const fileEnhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.files, uploadedFiles, fileFilters);
 
   return (
     <div className="space-y-6">
-      {/* Dynamic Page Header */}
-      <DynamicPageHeader 
-        config={createPageHeaderConfig('memberFirm', dashboardData)}
+      {/* Main File Submissions Table Header with Filters */}
+      <TableHeaderWithFilters
+        title={fileEnhancedConfig.title}
+        description={fileEnhancedConfig.description}
+        searchPlaceholder={fileEnhancedConfig.searchPlaceholder}
+        onSearch={handleFileSearch}
+        onFilter={handleFileFilter}
+        onClearFilters={handleClearFileFilters}
+        onAdd={() => console.log('Upload new file')}
+        addButtonLabel="Upload File"
+        filters={fileEnhancedConfig.filters}
+        quickFilters={fileEnhancedConfig.quickFilters}
+        activeFilters={fileFilters}
+        searchValue={fileSearch}
+        totalCount={uploadedFiles.length}
+        filteredCount={filteredFiles.length}
       />
 
-      {/* Member Firm Info */}
-      <Card className="border border-white/30 bg-gradient-to-br from-emerald-50 via-teal-100 to-cyan-100 backdrop-blur-md dark:from-emerald-950/20 dark:via-teal-900/20 dark:to-cyan-900/20 dark:border-white/20">
+      {/* Main File Submissions Table */}
+      {uploadedFiles.length > 0 && (
+        <GenericTable
+          data={filteredFiles}
+          layout={fileTableLayout}
+          isLoading={false}
+        />
+      )}
+
+      {/* Member Firm Information - Enhanced UI */}
+      <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
         <CardHeader>
-          <CardTitle className="text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Building2 className="h-5 w-5" />
             Member Firm Information
           </CardTitle>
-          <CardDescription className="text-emerald-700 dark:text-emerald-300">
-            Your organization details and submission status
+          <CardDescription className="text-muted-foreground">
+            Your organization details and membership status
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Firm Name</Label>
-              <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80">{memberFirm.name}</p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Firm Details */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                  <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">Firm Name</Label>
+                  <p className="text-sm font-semibold text-foreground">{memberFirm.name}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
+                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/50">
+                  <User className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">Contact Person</Label>
+                  <p className="text-sm font-semibold text-foreground">{memberFirm.contactPerson}</p>
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Country</Label>
-              <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80">{memberFirm.country}</p>
+
+            {/* Location & Type */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
+                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/50">
+                  <Globe className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">Country</Label>
+                  <p className="text-sm font-semibold text-foreground">{memberFirm.country}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
+                <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/50">
+                  <FileCheck className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">Membership Type</Label>
+                  <Badge variant={memberFirm.type === 'Current Members' ? "default" : "secondary"} className="mt-1">
+                    {memberFirm.type}
+                  </Badge>
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Type</Label>
-              <Badge variant={memberFirm.type === 'Current Members' ? "default" : "secondary"}>
-                {memberFirm.type}
-              </Badge>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Contact Person</Label>
-              <p className="text-sm text-emerald-700/80 dark:text-emerald-300/80">{memberFirm.contactPerson}</p>
+
+            {/* Contact Information */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
+                <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/50">
+                  <MessageSquare className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">Contact Email</Label>
+                  <p className="text-sm font-semibold text-foreground">{memberFirm.contactEmail}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30">
+                <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/50">
+                  <CheckCircle className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                  <Badge variant={memberFirm.isActive ? "default" : "secondary"} className="mt-1">
+                    {memberFirm.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Submission Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border border-white/30 bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-md dark:border-white/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
-              Files Submitted
-            </CardTitle>
-            <Upload className="h-4 w-4 text-white/80" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.filesSubmitted}</div>
-            <p className="text-xs text-white/80">
-              +2 this month
-            </p>
-          </CardContent>
-        </Card>
+       {/* Submission Stats */}
+       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+         <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-foreground">
+               Files Submitted
+             </CardTitle>
+             <Upload className="h-4 w-4 text-muted-foreground" />
+           </CardHeader>
+           <CardContent>
+             <div className="text-2xl font-bold text-foreground">{stats.filesSubmitted}</div>
+             <p className="text-xs text-muted-foreground">
+               +2 this month
+             </p>
+           </CardContent>
+         </Card>
 
-        <Card className="border border-white/30 bg-gradient-to-br from-yellow-500 to-orange-500 backdrop-blur-md dark:border-white/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
-              Under Review
-            </CardTitle>
-            <Clock className="h-4 w-4 text-white/80" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.underReview}</div>
-            <p className="text-xs text-white/80">
-              In progress
-            </p>
-          </CardContent>
-        </Card>
+         <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-foreground">
+               Under Review
+             </CardTitle>
+             <Clock className="h-4 w-4 text-muted-foreground" />
+           </CardHeader>
+           <CardContent>
+             <div className="text-2xl font-bold text-foreground">{stats.underReview}</div>
+             <p className="text-xs text-muted-foreground">
+               In progress
+             </p>
+           </CardContent>
+         </Card>
 
-        <Card className="border border-white/30 bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-md dark:border-white/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
-              Approved Files
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-white/80" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.approvedFiles}</div>
-            <p className="text-xs text-white/80">
-              ↑ 33% approval rate
-            </p>
-          </CardContent>
-        </Card>
+         <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-foreground">
+               Approved Files
+             </CardTitle>
+             <CheckCircle className="h-4 w-4 text-muted-foreground" />
+           </CardHeader>
+           <CardContent>
+             <div className="text-2xl font-bold text-foreground">{stats.approvedFiles}</div>
+             <p className="text-xs text-muted-foreground">
+               ↑ 33% approval rate
+             </p>
+           </CardContent>
+         </Card>
 
-        <Card className="border border-white/30 bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-md dark:border-white/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">
-              Avg. Review Time
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-white/80" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.avgReviewTime}d</div>
-            <p className="text-xs text-white/80">
-              -1.1 days improvement
-            </p>
-          </CardContent>
-        </Card>
+         <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-foreground">
+               Avg. Review Time
+             </CardTitle>
+             <Calendar className="h-4 w-4 text-muted-foreground" />
+           </CardHeader>
+           <CardContent>
+             <div className="text-2xl font-bold text-foreground">{stats.avgReviewTime}d</div>
+             <p className="text-xs text-muted-foreground">
+               -1.1 days improvement
+             </p>
+           </CardContent>
+         </Card>
         </div>
 
       {/* File Upload Section */}
-      <Card className="border border-white/30 bg-gradient-to-br from-blue-50 via-sky-100 to-cyan-100 backdrop-blur-md dark:from-blue-950/20 dark:via-sky-900/20 dark:to-cyan-900/20 dark:border-white/20">
+      <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
         <CardHeader>
-          <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2">
+          <CardTitle className="text-foreground flex items-center gap-2">
             <Upload className="h-5 w-5" />
             Upload New Files
           </CardTitle>
-          <CardDescription className="text-blue-700 dark:text-blue-300">
+          <CardDescription className="text-muted-foreground">
             Submit Excel files for QA review
           </CardDescription>
         </CardHeader>
@@ -298,80 +393,16 @@ export default function MemberFirmPortal() {
       </Card>
 
       {/* My Submissions */}
-      <Card className="border border-white/30 bg-gradient-to-br from-slate-50 via-gray-100 to-zinc-100 backdrop-blur-md dark:from-slate-950/20 dark:via-gray-900/20 dark:to-zinc-900/20 dark:border-white/20">
-        <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-            <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              My File Submissions
-            </CardTitle>
-            <CardDescription className="text-slate-700 dark:text-slate-300">
-              Track the status of your submitted files
-            </CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="border-slate-500 text-slate-700 hover:bg-slate-50">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm" className="border-slate-500 text-slate-700 hover:bg-slate-50">
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {uploadedFiles.length === 0 ? (
-              <div className="text-center py-8 text-slate-700/80 dark:text-slate-300/80">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">No files submitted yet</p>
-                <p className="text-sm">Upload your first Excel file to get started.</p>
-        </div>
-            ) : (
-              uploadedFiles.map((file) => (
-                <div key={file.id} className="flex items-center justify-between p-4 rounded-lg bg-white/40 backdrop-blur-sm border border-white/30 dark:bg-white/20 dark:border-white/20 hover:bg-white/60 dark:hover:bg-white/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-lg ${getStatusColor(file.status)}`}>
-                      {getStatusIcon(file.status)}
-        </div>
-      <div>
-                      <h4 className="font-medium text-slate-900 dark:text-slate-100">
-                        {file.originalName}
-                      </h4>
-                      <p className="text-sm text-slate-700/80 dark:text-slate-300/80">
-                        Uploaded: {file.uploadedAt.toLocaleDateString()} • Version {file.version}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={`${getStatusColor(file.status)} text-white`}>
-                          {file.status.replace('_', ' ')}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {(file.fileSize / 1024 / 1024).toFixed(2)} MB
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => handleViewFile(file.id)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleDownloadFile(file.id)}>
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    {file.status === 'rejected' && (
-                      <Button size="sm" variant="outline" onClick={() => handleResubmitFile(file.id)}>
-                        <RefreshCw className="h-4 w-4 mr-1" />
-                        Resubmit
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-      </div>
-        </CardContent>
-      </Card>
+      {/* Empty State for Files */}
+      {uploadedFiles.length === 0 && (
+        <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
+          <CardContent className="text-center py-8 text-muted-foreground">
+            <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-lg font-medium">No files submitted yet</p>
+            <p className="text-sm">Upload your first Excel file to get started.</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -24,15 +24,7 @@ import {
   StickyTableHeader,
   StickyTableHead,
 } from '@/components/ui/sticky-table';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { DataTablePagination } from './data-table-pagination';
-import { Settings2 } from 'lucide-react';
 import { GRADE_COLORS, GradeColorConfig } from '@/components/table/filter-layouts';
 import { DataTableSkeleton } from './data-table-skeleton';
 import { TABLE_CONFIG } from '@/lib/constants';
@@ -82,56 +74,24 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full space-y-4">
-      {/* Toolbar */}
-      <div className={`flex items-center ${showGradeLegend ? 'justify-between' : 'justify-end'}`}>
-        {/* Grade Color Legend - Only show if showGradeLegend is true */}
-        {showGradeLegend && (
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-foreground whitespace-nowrap">
-              Grade Colors:
-            </span>
-            <div className="flex items-center gap-3">
-              {GRADE_COLORS.map(({ label, bgColor }: GradeColorConfig) => (
-                <div key={label} className="flex items-center gap-1">
-                  <div className={`w-3 h-3 rounded-full ${bgColor}`} />
-                  <span className="text-xs text-foreground font-semibold">
-                    {label}
-                  </span>
-                </div>
-              ))}
-            </div>
+      {/* Grade Color Legend - Only show if showGradeLegend is true */}
+      {showGradeLegend && (
+        <div className="flex items-center justify-start space-x-2 mb-4">
+          <span className="text-xs font-bold text-foreground whitespace-nowrap">
+            Grade Colors:
+          </span>
+          <div className="flex items-center gap-3">
+            {GRADE_COLORS.map(({ label, bgColor }: GradeColorConfig) => (
+              <div key={label} className="flex items-center gap-1">
+                <div className={`w-3 h-3 rounded-full ${bgColor}`} />
+                <span className="text-xs text-foreground font-semibold">
+                  {label}
+                </span>
+              </div>
+            ))}
           </div>
-        )}
-
-        {/* View Filter Button */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Settings2 className="mr-2 h-4 w-4" />
-              {TABLE_CONFIG.viewButtonText}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[150px]">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+        </div>
+      )}
 
       {/* Table */}
       <StickyTable maxHeight={TABLE_CONFIG.maxHeight}>
