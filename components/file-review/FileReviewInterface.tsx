@@ -26,7 +26,8 @@ import {
   ThumbsUp,
   ThumbsDown
 } from 'lucide-react';
-import { ExcelFile, FileReviewHistory, ReviewStage, WorkflowStatus } from '@/types/user';
+import { ExcelFile, FileReviewHistory } from '@/types/fileManagement';
+import { ReviewStage, WorkflowStatus } from '@/types/user';
 import { ExcelValidationResult } from '@/types/fileManagement';
 
 interface FileReviewInterfaceProps {

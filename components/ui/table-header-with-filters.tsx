@@ -82,7 +82,7 @@ export function TableHeaderWithFilters({
             break;
           case 'k':
             e.preventDefault();
-            document.querySelector('input[placeholder*="Search"]')?.focus();
+            (document.querySelector('input[placeholder*="Search"]') as HTMLInputElement)?.focus();
             break;
           case 'Backspace':
             if (Object.keys(activeFilters).length > 0) {

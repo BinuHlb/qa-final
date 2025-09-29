@@ -16,7 +16,8 @@ import {
   FileX
 } from 'lucide-react';
 import { EXCEL_FILE_TYPES, MAX_FILE_SIZE, MAX_FILES_PER_UPLOAD } from '@/types/fileManagement';
-import { ExcelFile, FileStatus } from '@/types/user';
+import { ExcelFile } from '@/types/fileManagement';
+import { FileStatus } from '@/types/user';
 
 interface FileUploadComponentProps {
   onFilesUploaded: (files: ExcelFile[]) => void;

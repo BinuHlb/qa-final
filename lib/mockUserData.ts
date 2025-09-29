@@ -1,4 +1,5 @@
-import { User, MemberFirm, UserRole, FileUpload, ReviewWorkflow, ReviewAssignment, ExcelFile, FileReviewHistory } from '@/types/user';
+import { User, MemberFirm, UserRole, FileUpload, ReviewWorkflow, ReviewAssignment } from '@/types/user';
+import { ExcelFile, FileReviewHistory } from '@/types/fileManagement';
 import { ExtractedExcelData, ExcelValidationResult } from '@/types/fileManagement';
 
 // Seeded random number generator for consistent data
@@ -155,7 +156,7 @@ export const generateMockExcelFiles = (): ExcelFile[] => {
   return Array.from({ length: 25 }, (_, i) => {
     const memberFirm = getRandomItem(mockMemberFirms);
     const uploader = mockUsers.find(u => u.memberFirmId === memberFirm.id) || mockUsers[0];
-    const status = getRandomItem(statuses);
+    const status = getRandomItem(statuses) as any;
     const uploadedDate = getRandomDate(new Date('2024-01-01'), new Date());
 
     return {
@@ -215,7 +216,7 @@ const generateExtractedExcelData = (): ExtractedExcelData => {
 
 // Generate validation results
 const generateValidationResults = (): ExcelValidationResult[] => {
-  const resultTypes = ['error', 'warning', 'info'] as const;
+  const resultTypes = ['error', 'warning', 'info'];
   const messages = [
     'Missing required field in row 5',
     'Invalid date format in column C',
@@ -225,25 +226,25 @@ const generateValidationResults = (): ExcelValidationResult[] => {
   ];
 
   return Array.from({ length: Math.floor(seededRandom() * 5) }, (_, i) => ({
-    type: getRandomItem(resultTypes),
+    type: getRandomItem(resultTypes) as 'error' | 'warning' | 'info',
     message: getRandomItem(messages),
     sheet: `Sheet${Math.floor(seededRandom() * 3) + 1}`,
     row: Math.floor(seededRandom() * 100) + 1,
     column: Math.floor(seededRandom() * 10) + 1,
-    severity: getRandomItem(['low', 'medium', 'high'] as const)
+    severity: getRandomItem(['low', 'medium', 'high'])
   }));
 };
 
 // Generate file review history
 const generateFileReviewHistory = (fileId: string): FileReviewHistory[] => {
-  const stages = ['initial_review', 'technical_review', 'ceo_approval', 'final_approval'] as const;
-  const statuses = ['pending', 'in_progress', 'completed', 'rejected'] as const;
+  const stages = ['initial_review', 'technical_review', 'ceo_approval', 'final_approval'];
+  const statuses = ['pending', 'in_progress', 'completed', 'rejected'];
   const reviewers = mockUsers.filter(u => u.role === 'tech_director' || u.role === 'ceo');
 
   return Array.from({ length: Math.floor(seededRandom() * 3) + 1 }, (_, i) => {
     const reviewer = getRandomItem(reviewers);
-    const stage = stages[i];
-    const status = getRandomItem(statuses);
+    const stage = stages[i] as any;
+    const status = getRandomItem(statuses) as any;
     const reviewedDate = getRandomDate(new Date('2024-01-01'), new Date());
 
     return {
@@ -306,13 +307,13 @@ const generateRecommendations = (): string[] => {
 
 // Generate mock review workflows
 export const generateMockReviewWorkflows = (): ReviewWorkflow[] => {
-  const stages = ['initial_review', 'technical_review', 'ceo_approval', 'final_approval'] as const;
-  const statuses = ['pending', 'in_progress', 'completed', 'rejected'] as const;
+  const stages = ['initial_review', 'technical_review', 'ceo_approval', 'final_approval'];
+  const statuses = ['pending', 'in_progress', 'completed', 'rejected'];
   const techDirectors = mockUsers.filter(u => u.role === 'tech_director');
 
   return Array.from({ length: 15 }, (_, i) => {
-    const currentStage = getRandomItem(stages);
-    const status = getRandomItem(statuses);
+    const currentStage = getRandomItem(stages) as any;
+    const status = getRandomItem(statuses) as any;
     const assignedTo = getRandomItem(techDirectors);
     const dueDate = getRandomDate(new Date(), new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
 
@@ -320,13 +321,13 @@ export const generateMockReviewWorkflows = (): ReviewWorkflow[] => {
       id: `workflow-${i + 1}`,
       reviewId: `review-${i + 1}`,
       currentStage,
-      stages: stages.slice(0, Math.floor(seededRandom() * 3) + 2),
+      stages: stages.slice(0, Math.floor(seededRandom() * 3) + 2) as any,
       assignedTo: assignedTo.id,
       dueDate,
       status,
       comments: Array.from({ length: Math.floor(seededRandom() * 3) }, (_, j) => ({
         id: `comment-${i + 1}-${j + 1}`,
-        stage: getRandomItem(stages),
+        stage: getRandomItem(stages) as any,
         comment: generateReviewComment(status),
         commentedBy: getRandomItem(mockUsers).id,
         commentedAt: getRandomDate(new Date('2024-01-01'), new Date()),
@@ -340,16 +341,16 @@ export const generateMockReviewWorkflows = (): ReviewWorkflow[] => {
 
 // Generate mock review assignments
 export const generateMockReviewAssignments = (): ReviewAssignment[] => {
-  const priorities = ['low', 'medium', 'high', 'urgent'] as const;
-  const statuses = ['pending', 'accepted', 'in_progress', 'completed'] as const;
+  const priorities = ['low', 'medium', 'high', 'urgent'];
+  const statuses = ['pending', 'accepted', 'in_progress', 'completed'];
   const reviewers = mockUsers.filter(u => u.role === 'tech_director');
   const assigners = mockUsers.filter(u => u.role === 'admin' || u.role === 'tech_director');
 
   return Array.from({ length: 20 }, (_, i) => {
     const reviewer = getRandomItem(reviewers);
     const assigner = getRandomItem(assigners);
-    const priority = getRandomItem(priorities);
-    const status = getRandomItem(statuses);
+    const priority = getRandomItem(priorities) as any;
+    const status = getRandomItem(statuses) as any;
     const assignedDate = getRandomDate(new Date('2024-01-01'), new Date());
     const dueDate = getRandomDate(assignedDate, new Date(assignedDate.getTime() + 14 * 24 * 60 * 60 * 1000));
 

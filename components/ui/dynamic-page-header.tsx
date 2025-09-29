@@ -199,6 +199,49 @@ export const PAGE_HEADER_CONFIGS = {
       variant: "destructive" as const,
       color: "red"
     }
+  },
+  ceo: {
+    title: "CEO Dashboard",
+    description: "Executive oversight and high-level analytics for QA review processes and organizational performance.",
+    badge: {
+      text: "Executive",
+      variant: "default" as const,
+      color: "blue"
+    },
+    stats: [
+      {
+        label: "Total Reviews",
+        value: 0,
+        trend: {
+          value: "+12% from last quarter",
+          type: "positive" as const
+        }
+      },
+      {
+        label: "Completion Rate",
+        value: "0%",
+        trend: {
+          value: "↑ 8% this quarter",
+          type: "positive" as const
+        }
+      },
+      {
+        label: "Member Firms",
+        value: 0,
+        trend: {
+          value: "Active",
+          type: "neutral" as const
+        }
+      },
+      {
+        label: "Quality Score",
+        value: "0/10",
+        trend: {
+          value: "↑ 0.5 points",
+          type: "positive" as const
+        }
+      }
+    ]
   }
 };
 
@@ -233,6 +276,10 @@ export function createPageHeaderConfig(
           return { ...stat, value: `${data.avgReviewTime || 0} days` };
         case "Active Reviewers":
           return { ...stat, value: data.activeReviewers || 0 };
+        case "Member Firms":
+          return { ...stat, value: data.memberFirms || 0 };
+        case "Quality Score":
+          return { ...stat, value: `${data.qualityScore || 0}/10` };
         default:
           return stat;
       }

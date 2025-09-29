@@ -84,8 +84,8 @@ export const THEME_CONFIG = {
 } as const;
 
 // Utility Functions
-export const getBrandColor = (color: keyof typeof BRAND_COLORS.primary, shade: keyof typeof BRAND_COLORS.primary) => {
-  return BRAND_COLORS[color][shade];
+export const getBrandColor = (color: keyof typeof BRAND_COLORS, shade: keyof typeof BRAND_COLORS.primary) => {
+  return (BRAND_COLORS[color] as any)[shade];
 };
 
 export const getThemeColor = (theme: 'light' | 'dark', color: keyof typeof THEME_CONFIG.light) => {

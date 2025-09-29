@@ -29,7 +29,8 @@ import {
 import { FileUploadComponent } from '@/components/file-upload/FileUploadComponent';
 import { mockExcelFiles, mockUsers, mockMemberFirms } from '@/lib/mockUserData';
 import { AuthService, AccessControl } from '@/lib/auth';
-import { ExcelFile, FileStatus } from '@/types/user';
+import { ExcelFile } from '@/types/fileManagement';
+import { FileStatus } from '@/types/user';
 import { DynamicPageHeader, createPageHeaderConfig } from '@/components/ui/dynamic-page-header';
 
 export default function MemberFirmPortal() {
@@ -132,7 +133,7 @@ export default function MemberFirmPortal() {
     <div className="space-y-6">
       {/* Dynamic Page Header */}
       <DynamicPageHeader 
-        config={createPageHeaderConfig('member_firm', dashboardData)}
+        config={createPageHeaderConfig('memberFirm', dashboardData)}
       />
 
       {/* Member Firm Info */}
