@@ -25,7 +25,8 @@ import {
 import { StatusBadge } from '@/components/ui/status-badge';
 import { mockExcelFiles, mockReviewWorkflows, mockUsers, mockMemberFirms } from '@/lib/mockUserData';
 import { AuthService, AccessControl } from '@/lib/auth';
-import { ExcelFile, ReviewWorkflow, FileStatus } from '@/types/user';
+import { ExcelFile } from '@/types/fileManagement';
+import { ReviewWorkflow, FileStatus } from '@/types/user';
 import { DynamicPageHeader, createPageHeaderConfig } from '@/components/ui/dynamic-page-header';
 
 export default function CEODashboard() {

@@ -1,7 +1,11 @@
 'use client';
 
-import { QAReview } from '@/types/qaReview';
-import { StatusBadge } from '@/components/ui/status-badge';
+import * as React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { QAReview } from "@/types/qaReview";
+import { Calendar, User, Building, FileText } from "lucide-react";
 
 interface QAReviewDetailDialogProps {
   open: boolean;
@@ -10,93 +14,124 @@ interface QAReviewDetailDialogProps {
 }
 
 export function QAReviewDetailDialog({ open, onClose, review }: QAReviewDetailDialogProps) {
-  if (!open || !review) return null;
+  if (!review) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
-      aria-modal="true"
-      role="dialog"
-    >
-      <div
-        className="bg-white/95 dark:bg-gray-900/95 rounded-2xl max-w-2xl w-full p-8 relative border border-gray-300/50 dark:border-gray-600/50 backdrop-blur-md"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close Button */}
-        <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
-          onClick={onClose}
-        >
-          ✕
-        </button>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            QA Review Details
+          </DialogTitle>
+        </DialogHeader>
 
-        {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-          <span className="mr-3">{review.memberFirmIntranetName}</span>
-          <StatusBadge status={review.type} />
-        </h3>
+        <div className="space-y-6">
+          {/* Basic Information */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Member Firm</label>
+                <p className="text-lg font-semibold">{review.memberFirmIntranetName}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Country</label>
+                <p className="text-lg font-semibold">{review.country}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Reviewer</label>
+                <p className="text-lg font-semibold">{review.reviewerName}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Review Type</label>
+                <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  {review.type}
+                </Badge>
+              </div>
+            </div>
 
-        {/* Reviewer + Country */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Reviewer</p>
-            <p className="font-semibold text-gray-900 dark:text-white">{review.reviewerName}</p>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Review Status</label>
+                <Badge 
+                  variant="secondary" 
+                  className={`${
+                    review.qaReviewStatus === 'In Progress' 
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      : review.qaReviewStatus === 'Completed'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                  }`}
+                >
+                  {review.qaReviewStatus}
+                </Badge>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Current Grading</label>
+                <p className="text-lg font-semibold">{review.currentGrading}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Previous Grading</label>
+                <p className="text-lg font-semibold">{review.previousGrading}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Member Contact</label>
+                <p className="text-lg font-semibold">{review.memberContact}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Country</p>
-            <p className="font-semibold text-gray-900 dark:text-white">{review.country}</p>
+
+          {/* Timeline Information */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Review Planned</label>
+              <p className="text-lg font-semibold">{review.reviewPlanned}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Review End Date</label>
+              <p className="text-lg font-semibold">{review.reviewEndDate}</p>
+            </div>
+          </div>
+
+          {/* Status Information */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Reviewer Status</label>
+              <Badge 
+                variant="secondary" 
+                className={`${
+                  review.reviewerStatus === 'Active' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : review.reviewerStatus === 'Approved'
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}
+              >
+                {review.reviewerStatus}
+              </Badge>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Partner Status</label>
+              <Badge 
+                variant="secondary" 
+                className={`${
+                  review.partnerStatus === 'Approved' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}
+              >
+                {review.partnerStatus}
+              </Badge>
+            </div>
           </div>
         </div>
 
-        {/* Dates */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Planned Start</p>
-            <p className="font-mono text-gray-900 dark:text-white">{review.reviewPlanned}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">End Date</p>
-            <p className="font-mono text-gray-900 dark:text-white">{review.reviewEndDate}</p>
-          </div>
-        </div>
-
-        <hr className="my-6 border-gray-200 dark:border-gray-700" />
-
-        {/* Grading */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Previous Grading</p>
-            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold">
-              {review.previousGrading}
-            </span>
-          </div>
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Current Grading</p>
-            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold">
-              {review.currentGrading}
-            </span>
-          </div>
-        </div>
-
-        <hr className="my-6 border-gray-200 dark:border-gray-700" />
-
-        {/* Statuses */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Reviewer Status</p>
-            <StatusBadge status={review.reviewerStatus} />
-          </div>
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Partner Status</p>
-            <StatusBadge status={review.partnerStatus} />
-          </div>
-          <div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">QA Review Status</p>
-            <StatusBadge status={review.qaReviewStatus} />
-          </div>
-        </div>
-      </div>
-    </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

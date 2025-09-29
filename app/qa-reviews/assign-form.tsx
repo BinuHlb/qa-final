@@ -4,61 +4,124 @@ import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { QAReview } from "@/types/qaReview"; // FIX: Import from types, not mockData
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { QAReview } from "@/types/qaReview";
 
 interface AssignReviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  review?: QAReview;  // Row data
-  onSubmit: (data: { assignedTo: string; notes: string }) => void;
+  review?: QAReview;
+  onSubmit: (data: { assignedTo: string; notes: string; dueDate: string; priority: string }) => void;
 }
 
 export function AssignReviewDialog({ open, onOpenChange, review, onSubmit }: AssignReviewDialogProps) {
   const [assignedTo, setAssignedTo] = React.useState("");
   const [notes, setNotes] = React.useState("");
+  const [dueDate, setDueDate] = React.useState("");
+  const [priority, setPriority] = React.useState("medium");
 
   React.useEffect(() => {
     if (review) {
       setAssignedTo("");
       setNotes("");
+      setDueDate("");
+      setPriority("medium");
     }
   }, [review]);
 
+  const handleSubmit = () => {
+    if (!assignedTo || !dueDate) return;
+    
+    onSubmit({
+      assignedTo,
+      notes,
+      dueDate,
+      priority
+    });
+    
+    // Reset form
+    setAssignedTo("");
+    setNotes("");
+    setDueDate("");
+    setPriority("medium");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Assign QA Review</DialogTitle>
         </DialogHeader>
 
         {review ? (
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Firm</p>
-              <p className="font-medium">{review.memberFirmIntranetName}</p>
+          <div className="space-y-6">
+            {/* Review Information */}
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-2">Review Information</h4>
+              <div className="grid gap-2 text-sm">
+                <div><span className="font-medium">Firm:</span> {review.memberFirmIntranetName}</div>
+                <div><span className="font-medium">Country:</span> {review.country}</div>
+                <div><span className="font-medium">Current Reviewer:</span> {review.reviewerName}</div>
+                <div><span className="font-medium">Status:</span> {review.qaReviewStatus}</div>
+              </div>
             </div>
 
-            <div>
-              <p className="text-sm text-muted-foreground">Reviewer</p>
-              <p className="font-medium">{review.reviewerName}</p>
-            </div>
+            {/* Assignment Form */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="assignedTo">Assign To</Label>
+                <Select value={assignedTo} onValueChange={setAssignedTo}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select reviewer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="john-doe">John Doe</SelectItem>
+                    <SelectItem value="jane-smith">Jane Smith</SelectItem>
+                    <SelectItem value="mike-wilson">Mike Wilson</SelectItem>
+                    <SelectItem value="sarah-johnson">Sarah Johnson</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Assign To</label>
-              <Input
-                value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-                placeholder="Enter user name or email"
-              />
-            </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Input
+                    id="dueDate"
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="priority">Priority</Label>
+                  <Select value={priority} onValueChange={setPriority}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Notes</label>
-              <Input
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Optional notes..."
-              />
+              <div className="space-y-2">
+                <Label htmlFor="notes">Additional Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Enter any additional notes or requirements..."
+                  rows={4}
+                />
+              </div>
             </div>
           </div>
         ) : (
@@ -70,13 +133,10 @@ export function AssignReviewDialog({ open, onOpenChange, review, onSubmit }: Ass
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              onSubmit({ assignedTo, notes });
-              onOpenChange(false);
-            }}
-            disabled={!assignedTo}
+            onClick={handleSubmit}
+            disabled={!assignedTo || !dueDate}
           >
-            Assign
+            Assign Review
           </Button>
         </DialogFooter>
       </DialogContent>
