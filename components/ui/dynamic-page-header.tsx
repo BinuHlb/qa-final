@@ -38,8 +38,8 @@ interface DynamicPageHeaderProps {
 
 export function DynamicPageHeader({ config, className = '' }: DynamicPageHeaderProps) {
   return (
-    <AnimatedGradientBg className={className}>
-      <Card className="bg-transparent border-none shadow-none">
+    <div className={`relative overflow-hidden rounded-lg ${className}`}>
+      <Card className="bg-white/80 dark:bg-gray-900/80 border border-white/30 shadow-none backdrop-blur-md">
         <CardContent className="p-6">
         <div className="flex flex-col space-y-4">
           {/* Header Content */}
@@ -104,9 +104,9 @@ export function DynamicPageHeader({ config, className = '' }: DynamicPageHeaderP
             </div>
           )}
         </div>
-        </CardContent>
-      </Card>
-    </AnimatedGradientBg>
+      </CardContent>
+    </Card>
+    </div>
   );
 }
 
