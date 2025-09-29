@@ -18,11 +18,23 @@ import { Badge } from '@/components/ui/badge';
 import { User } from '@/types/qaReview';
 import { mockUsers } from '@/lib/mockData';
 import { toast } from 'sonner';
-import { PageHeader } from '@/components/ui/page-header';
+import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
+import { useDashboardFiltering } from '@/hooks/use-dynamic-filtering';
 
 export default function AdminPage() {
   const [data, setData] = useState<User[]>(mockUsers);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Use dynamic filtering hook
+  const {
+    filteredData,
+    stats,
+    search,
+    filters,
+    handleSearch,
+    handleFilter,
+    handleClearFilters
+  } = useDashboardFiltering(data);
 
   const handleEdit = (user: User) => {
     toast.success(`Edit user dialog opened for ${user.name}`);
@@ -128,13 +140,11 @@ export default function AdminPage() {
   const activeUsers = data.filter(u => u.status === 'Active').length;
   const adminUsers = data.filter(u => u.role === 'Admin').length;
 
+  // Get enhanced filter configuration with dynamic counts
+  const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.qaReviews, data, filters);
+
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Admin Panel"
-        description="Manage users, roles, and system permissions."
-      />
-
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -177,21 +187,29 @@ export default function AdminPage() {
         </Card>
       </div>
 
-      {/* User Management */}
+      {/* Integrated Table Header with Filters */}
+      <TableHeaderWithFilters
+        title="User Management"
+        description="Manage system users, their roles, and permissions"
+        searchPlaceholder="Search users..."
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onClearFilters={handleClearFilters}
+        onAdd={() => toast.success('Add user dialog opened')}
+        addButtonLabel="Add User"
+        filters={enhancedConfig.filters}
+        activeFilters={filters}
+        searchValue={search}
+        totalCount={stats.total}
+        filteredCount={stats.filtered}
+      />
+
+      {/* User Management Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>User Management</CardTitle>
-          <CardDescription>
-            Manage system users, their roles, and permissions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <DataTable
             columns={columns}
-            data={data}
-            searchKey="name"
-            searchPlaceholder="Search users..."
-            onAdd={() => toast.success('Add user dialog opened')}
+            data={filteredData}
             isLoading={isLoading}
           />
         </CardContent>

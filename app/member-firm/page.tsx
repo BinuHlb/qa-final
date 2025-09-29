@@ -16,11 +16,23 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { MemberFirm } from '@/types/qaReview';
 import { mockMemberFirms } from '@/lib/mockData';
 import { toast } from 'sonner';
-import { PageHeader } from '@/components/ui/page-header';
+import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
+import { useDashboardFiltering } from '@/hooks/use-dynamic-filtering';
 
 export default function MemberFirmPage() {
   const [data, setData] = useState<MemberFirm[]>(mockMemberFirms);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Use dynamic filtering hook
+  const {
+    filteredData,
+    stats,
+    search,
+    filters,
+    handleSearch,
+    handleFilter,
+    handleClearFilters
+  } = useDashboardFiltering(data);
 
   const handleEdit = (firm: MemberFirm) => {
     toast.success(`Edit dialog opened for ${firm.name}`);
@@ -116,19 +128,31 @@ export default function MemberFirmPage() {
     },
   ];
 
+  // Get enhanced filter configuration with dynamic counts
+  const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.qaReviews, data, filters);
+
   return (
     <div className="space-y-6">
-      <PageHeader 
+      {/* Integrated Table Header with Filters */}
+      <TableHeaderWithFilters
         title="Member Firms"
         description="Manage member firms and their information."
+        searchPlaceholder="Search member firms..."
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onClearFilters={handleClearFilters}
+        onAdd={() => toast.success('Add member firm dialog opened')}
+        addButtonLabel="Add Member Firm"
+        filters={enhancedConfig.filters}
+        activeFilters={filters}
+        searchValue={search}
+        totalCount={stats.total}
+        filteredCount={stats.filtered}
       />
 
       <DataTable
         columns={columns}
-        data={data}
-        searchKey="name"
-        searchPlaceholder="Search firms..."
-        onAdd={() => toast.success('Add member firm dialog opened')}
+        data={filteredData}
         isLoading={isLoading}
       />
     </div>

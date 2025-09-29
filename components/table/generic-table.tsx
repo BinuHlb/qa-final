@@ -4,31 +4,26 @@ import * as React from 'react';
 import { DataTable } from './data-table';
 import { TableLayoutConfig } from './table-layouts';
 
-interface GenericTableProps<TData> {
-  data: TData[];
+interface GenericTableProps {
+  data: any[];
   layout: TableLayoutConfig;
   isLoading?: boolean;
-  onAdd?: () => void;
-  onExport?: () => void;
+  showGradeLegend?: boolean;
 }
 
-export function GenericTable<TData>({
+export function GenericTable({
   data,
   layout,
   isLoading = false,
-  onAdd,
-  onExport,
-}: GenericTableProps<TData>) {
+  showGradeLegend = false,
+}: GenericTableProps) {
   return (
     <DataTable
       columns={layout.columns}
       data={data}
-      searchKey={layout.searchKey}
-      searchPlaceholder={layout.searchPlaceholder}
       onRowClick={layout.onRowClick}
-      onAdd={onAdd}
-      onExport={onExport}
       isLoading={isLoading}
+      showGradeLegend={showGradeLegend}
     />
   );
 }

@@ -210,7 +210,7 @@ export function LoginForm() {
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Button
               variant="link"
               className="text-secondary hover:text-secondary/80 p-0 h-auto font-medium"

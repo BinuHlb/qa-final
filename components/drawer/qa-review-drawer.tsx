@@ -5,41 +5,29 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { X } from 'lucide-react';
+import { X, FileCheck, Save, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { QAReview } from '@/types/qaReview';
-import {
-  QA_REVIEW_STATUS_OPTIONS,
-  REVIEWER_STATUS_OPTIONS,
-  PARTNER_STATUS_OPTIONS,
-  FIRM_TYPE_OPTIONS,
-  COUNTRIES,
-  GRADINGS,
-} from '@/lib/constants';
+import { FormField, QA_REVIEW_FORM_CONFIG } from '@/components/ui/form-field';
+import { toast } from 'sonner';
 
 const qaReviewSchema = z.object({
   memberFirmIntranetName: z.string().min(1, 'Firm name is required'),
-  type: z.enum(['Prospect', 'Current Members']),
+  type: z.enum(['Current Members', 'Prospect']),
   memberContact: z.string().email('Valid email is required'),
   reviewerName: z.string().min(1, 'Reviewer name is required'),
   country: z.string().min(1, 'Country is required'),
-  reviewerStatus: z.enum(['⛔', 'Active']),
-  partnerStatus: z.enum(['⛔', 'Approved']),
-  reviewPlanned: z.string().min(1, 'Review planned date is required'),
+  reviewPlanned: z.string().min(1, 'Review start date is required'),
   reviewEndDate: z.string().min(1, 'Review end date is required'),
-  currentGrading: z.string().min(1, 'Current grading is required'),
-  previousGrading: z.string().min(1, 'Previous grading is required'),
-  qaReviewStatus: z.enum(['Not Started', 'In Progress', 'Completed']),
+  currentGrading: z.string().optional(),
+  previousGrading: z.string().optional(),
+  reviewerStatus: z.enum(['Active', '⛔']).optional(),
+  partnerStatus: z.enum(['Approved', '⛔']).optional(),
+  qaReviewStatus: z.enum(['Not Started', 'In Progress', 'Completed']).optional(),
+  forceSubmit: z.boolean().optional(),
 });
 
 type QAReviewFormData = z.infer<typeof qaReviewSchema>;
@@ -59,42 +47,38 @@ export function QAReviewDrawer({
 }: QAReviewDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fix: Only allow reviewerStatus and partnerStatus values that match the schema
-  const getSafeDefaultValues = (): QAReviewFormData => {
-    return editingReview
-      ? {
-          memberFirmIntranetName: editingReview.memberFirmIntranetName,
-          type: editingReview.type,
-          memberContact: editingReview.memberContact,
-          reviewerName: editingReview.reviewerName,
-          country: editingReview.country,
-          reviewerStatus:
-            editingReview.reviewerStatus === 'Active' || editingReview.reviewerStatus === '⛔'
-              ? editingReview.reviewerStatus
-              : 'Active',
-          partnerStatus:
-            editingReview.partnerStatus === 'Approved' || editingReview.partnerStatus === '⛔'
-              ? editingReview.partnerStatus
-              : 'Approved',
-          reviewPlanned: editingReview.reviewPlanned,
-          reviewEndDate: editingReview.reviewEndDate,
-          currentGrading: editingReview.currentGrading,
-          previousGrading: editingReview.previousGrading,
-          qaReviewStatus: editingReview.qaReviewStatus,
-        }
-      : {
+  const getSafeDefaultValues = (): Partial<QAReviewFormData> => {
+    if (editingReview) {
+      return {
+        memberFirmIntranetName: editingReview.memberFirmIntranetName || '',
+        type: editingReview.type as 'Current Members' | 'Prospect',
+        memberContact: editingReview.memberContact || '',
+        reviewerName: editingReview.reviewerName || '',
+        country: editingReview.country || '',
+        reviewPlanned: editingReview.reviewPlanned || '',
+        reviewEndDate: editingReview.reviewEndDate || '',
+        currentGrading: editingReview.currentGrading?.toString() || '',
+        previousGrading: editingReview.previousGrading?.toString() || '',
+        reviewerStatus: editingReview.reviewerStatus as 'Active' | '⛔' || 'Active',
+        partnerStatus: editingReview.partnerStatus as 'Approved' | '⛔' || 'Approved',
+        qaReviewStatus: editingReview.qaReviewStatus as 'Not Started' | 'In Progress' | 'Completed' || 'Not Started',
+        forceSubmit: false,
+      };
+    }
+    return {
           memberFirmIntranetName: '',
-          type: 'Current Members',
+      type: 'Current Members' as const,
           memberContact: '',
           reviewerName: '',
           country: '',
-          reviewerStatus: 'Active',
-          partnerStatus: 'Approved',
           reviewPlanned: '',
           reviewEndDate: '',
           currentGrading: '',
           previousGrading: '',
-          qaReviewStatus: 'Not Started',
+      reviewerStatus: 'Active' as const,
+      partnerStatus: 'Approved' as const,
+      qaReviewStatus: 'Not Started' as const,
+      forceSubmit: false,
         };
   };
 
@@ -107,11 +91,24 @@ export function QAReviewDrawer({
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-      onSave(data);
+      
+      const reviewData = {
+        ...data,
+        currentGrading: data.currentGrading || '',
+        previousGrading: data.previousGrading || '',
+        reviewerStatus: data.reviewerStatus || 'Active',
+        partnerStatus: data.partnerStatus || 'Approved',
+        qaReviewStatus: data.qaReviewStatus || 'Not Started',
+        id: editingReview?.id || Math.random().toString(),
+      };
+      
+      onSave(reviewData);
       form.reset();
       onClose();
+      toast.success(editingReview ? 'Review updated successfully!' : 'Review created successfully!');
     } catch (error) {
       console.error('Error saving review:', error);
+      toast.error('Failed to save review. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -120,234 +117,110 @@ export function QAReviewDrawer({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-[70] overflow-hidden">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <motion.div
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="absolute right-0 top-0 h-full w-full max-w-md bg-background shadow-xl"
+        className="absolute right-0 top-0 h-screen w-full max-w-lg bg-white dark:bg-gray-900 shadow-2xl border-l-2 border-primary/30 dark:border-primary/50"
       >
-        <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <h2 className="text-lg font-semibold">
+        <div className="flex h-screen flex-col">
+          {/* Enhanced Header */}
+          <div className="flex items-center justify-between border-b-2 border-primary/20 dark:border-primary/30 px-6 py-5 bg-primary/10 dark:bg-primary/20">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 dark:bg-primary/30 flex items-center justify-center">
+                <FileCheck className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-foreground">
               {editingReview ? 'Edit QA Review' : 'Add New QA Review'}
             </h2>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+                <p className="text-xs text-muted-foreground">
+                  {editingReview ? 'Update review details' : 'Create a new quality review'}
+                </p>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose}
+              className="hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <Label htmlFor="memberFirmIntranetName">Member Firm Name</Label>
-                <Input
-                  id="memberFirmIntranetName"
-                  {...form.register('memberFirmIntranetName')}
-                />
-                {form.formState.errors.memberFirmIntranetName && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {form.formState.errors.memberFirmIntranetName.message}
-                  </p>
-                )}
+          {/* Enhanced Form Container */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-6 py-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Dynamic Form Fields */}
+                <div className="grid gap-6">
+                  {QA_REVIEW_FORM_CONFIG.map((fieldConfig) => {
+                    const fieldValue = form.watch(fieldConfig.name as any);
+                    const fieldError = form.formState.errors[fieldConfig.name as keyof typeof form.formState.errors]?.message;
+                    
+                    return (
+                      <FormField
+                        key={fieldConfig.name}
+                        config={fieldConfig}
+                        value={fieldValue}
+                        onChange={(value) => form.setValue(fieldConfig.name as any, value)}
+                        error={fieldError as string}
+                      />
+                    );
+                  })}
               </div>
 
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Select
-                  value={form.watch('type')}
-                  onValueChange={(value) => form.setValue('type', value as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FIRM_TYPE_OPTIONS.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* Force Submit Checkbox */}
+                <div className="flex items-center space-x-3 p-4 rounded-lg bg-primary/10 dark:bg-primary/20 border-2 border-primary/30 dark:border-primary/40">
+                  <Checkbox
+                    id="forceSubmit"
+                    checked={form.watch('forceSubmit')}
+                    onCheckedChange={(checked) => form.setValue('forceSubmit', !!checked)}
+                    className="border-primary/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="forceSubmit" className="text-sm font-semibold text-foreground cursor-pointer">
+                      Force submit
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Bypass validation checks (use with caution)
+                    </p>
               </div>
-
-              <div>
-                <Label htmlFor="memberContact">Member Contact</Label>
-                <Input
-                  id="memberContact"
-                  type="email"
-                  {...form.register('memberContact')}
-                />
-                {form.formState.errors.memberContact && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {form.formState.errors.memberContact.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="reviewerName">Reviewer Name</Label>
-                <Input
-                  id="reviewerName"
-                  {...form.register('reviewerName')}
-                />
-                {form.formState.errors.reviewerName && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {form.formState.errors.reviewerName.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="country">Country</Label>
-                <Select
-                  value={form.watch('country')}
-                  onValueChange={(value) => form.setValue('country', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COUNTRIES.map((country) => (
-                      <SelectItem key={country} value={country}>
-                        {country}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="reviewPlanned">Review Planned Date</Label>
-                <Input
-                  id="reviewPlanned"
-                  type="date"
-                  {...form.register('reviewPlanned')}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="reviewEndDate">Review End Date</Label>
-                <Input
-                  id="reviewEndDate"
-                  type="date"
-                  {...form.register('reviewEndDate')}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="currentGrading">Current Grading</Label>
-                <Select
-                  value={form.watch('currentGrading')}
-                  onValueChange={(value) => form.setValue('currentGrading', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select grading" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GRADINGS.map((grade) => (
-                      <SelectItem key={grade} value={grade}>
-                        {grade}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="previousGrading">Previous Grading</Label>
-                <Select
-                  value={form.watch('previousGrading')}
-                  onValueChange={(value) => form.setValue('previousGrading', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select grading" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GRADINGS.map((grade) => (
-                      <SelectItem key={grade} value={grade}>
-                        {grade}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="reviewerStatus">Reviewer Status</Label>
-                <Select
-                  value={form.watch('reviewerStatus')}
-                  onValueChange={(value) => form.setValue('reviewerStatus', value as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select reviewer status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REVIEWER_STATUS_OPTIONS.filter(
-                      (status) => status === 'Active' || status === '⛔'
-                    ).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="partnerStatus">Partner Status</Label>
-                <Select
-                  value={form.watch('partnerStatus')}
-                  onValueChange={(value) => form.setValue('partnerStatus', value as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select partner status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PARTNER_STATUS_OPTIONS.filter(
-                      (status) => status === 'Approved' || status === '⛔'
-                    ).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="qaReviewStatus">QA Review Status</Label>
-                <Select
-                  value={form.watch('qaReviewStatus')}
-                  onValueChange={(value) => form.setValue('qaReviewStatus', value as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {QA_REVIEW_STATUS_OPTIONS.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </form>
+            </div>
           </div>
 
-          <div className="border-t px-6 py-4">
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={onClose}>
+          {/* Enhanced Footer */}
+          <div className="border-t-2 border-primary/20 dark:border-primary/30 px-6 py-5 bg-primary/10 dark:bg-primary/20">
+            <div className="flex justify-end space-x-3">
+              <Button 
+                variant="outline" 
+                onClick={onClose}
+                className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all duration-200"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={form.handleSubmit(onSubmit)}
                 disabled={isLoading}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 min-w-[100px]"
               >
-                {isLoading ? 'Saving...' : 'Save'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Review
+                  </>
+                )}
               </Button>
             </div>
           </div>

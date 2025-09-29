@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { QAReview } from '@/types/qaReview';
-import { PageHeader } from '@/components/ui/page-header';
+import { TableHeaderWithFilters, ENHANCED_FILTER_CONFIGS, updateFilterCounts } from '@/components/ui/table-header-with-filters';
+import { useQAReviewFiltering } from '@/hooks/use-dynamic-filtering';
 import { GenericTable } from '@/components/table/generic-table';
-import { FilterComponent } from '@/components/table/filter-component';
 import { createQAReviewTableLayout } from '@/components/table/table-layouts';
 import { QAReviewDetailDialog } from './detail-view';
 import { AssignReviewDialog } from './assign-form';
@@ -17,7 +17,18 @@ export default function QAReviewsPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<QAReview | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Not Started' | 'In Progress' | 'Completed'>('all');
+  
+  // Use dynamic filtering hook
+  const {
+    filteredData,
+    stats,
+    search,
+    filters,
+    handleSearch,
+    handleFilter,
+    handleClearFilters,
+    getFilterCounts
+  } = useQAReviewFiltering(data);
 
   // Assign form state
   const [open, setOpen] = useState(false);
@@ -55,10 +66,6 @@ export default function QAReviewsPage() {
     setIsDrawerOpen(true);
   };
 
-  const handleExport = () => {
-    // In a real app, this would export to CSV/Excel
-    toast.success('Data exported successfully');
-  };
 
   const handleView = (review: QAReview) => {
     setDetailReview(review);
@@ -70,14 +77,12 @@ export default function QAReviewsPage() {
     setOpen(true);
   };
 
+
   // Create table layout configuration
   const tableLayout = createQAReviewTableLayout(handleView, handleEdit, handleRowClick);
 
-  // Filter data based on status
-  const filteredData =
-    statusFilter === 'all'
-      ? data
-      : data.filter((r) => r.qaReviewStatus === statusFilter);
+  // Get enhanced filter configuration with dynamic counts
+  const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.qaReviews, data, filters);
 
   return (
     <div className="space-y-6">
@@ -88,16 +93,24 @@ export default function QAReviewsPage() {
         review={detailReview}
       />
 
-      <PageHeader 
-        title="QA Reviews"
-        description="Manage and track all quality assurance reviews."
-      />
-
-      {/* Status Filters and Grade Legend */}
-      <FilterComponent
-        data={data}
-        statusFilter={statusFilter}
-        onStatusFilterChange={(filter) => setStatusFilter(filter)}
+      {/* Integrated Table Header with Filters */}
+      <TableHeaderWithFilters
+        title={enhancedConfig.title}
+        description={enhancedConfig.description}
+        searchPlaceholder={enhancedConfig.searchPlaceholder}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onClearFilters={handleClearFilters}
+        onAdd={() => {
+          setEditingReview(null);
+          setIsDrawerOpen(true);
+        }}
+        addButtonLabel="Add QA Review"
+        filters={enhancedConfig.filters}
+        activeFilters={filters}
+        searchValue={search}
+        totalCount={stats.total}
+        filteredCount={stats.filtered}
       />
 
       {/* Data Table */}
@@ -105,11 +118,7 @@ export default function QAReviewsPage() {
         data={filteredData}
         layout={tableLayout}
         isLoading={isLoading}
-        onAdd={() => {
-          setEditingReview(null);
-          setIsDrawerOpen(true);
-        }}
-        onExport={handleExport}
+        showGradeLegend={true}
       />
 
       {/* Assignment Dialog */}

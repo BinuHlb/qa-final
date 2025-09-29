@@ -31,32 +31,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { DataTablePagination } from './data-table-pagination';
-import { Settings2, Download, Plus } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
+import { GRADE_COLORS, GradeColorConfig } from '@/components/table/filter-layouts';
 import { DataTableSkeleton } from './data-table-skeleton';
 import { TABLE_CONFIG } from '@/lib/constants';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  searchKey?: string;
-  searchPlaceholder?: string;
-  onAdd?: () => void;
-  onExport?: () => void;
   isLoading?: boolean;
   onRowClick?: (row: TData) => void;
+  showGradeLegend?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  searchKey,
-  searchPlaceholder = TABLE_CONFIG.searchPlaceholder,
-  onAdd,
-  onExport,
   isLoading = false,
   onRowClick,
+  showGradeLegend = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -89,62 +83,54 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full space-y-4">
       {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-1 items-center space-x-2">
-          {searchKey && (
-            <Input
-              placeholder={searchPlaceholder}
-              value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table.getColumn(searchKey)?.setFilterValue(event.target.value)
-              }
-              className="h-8 w-[150px] lg:w-[250px]"
-            />
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          {onExport && (
-            <Button variant="outline" size="sm" onClick={onExport}>
-              <Download className="mr-2 h-4 w-4" />
-              {TABLE_CONFIG.exportButtonText}
-            </Button>
-          )}
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="ml-auto">
-                <Settings2 className="mr-2 h-4 w-4" />
-                {TABLE_CONFIG.viewButtonText}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[150px]">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+      <div className={`flex items-center ${showGradeLegend ? 'justify-between' : 'justify-end'}`}>
+        {/* Grade Color Legend - Only show if showGradeLegend is true */}
+        {showGradeLegend && (
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-bold text-foreground whitespace-nowrap">
+              Grade Colors:
+            </span>
+            <div className="flex items-center gap-3">
+              {GRADE_COLORS.map(({ label, bgColor }: GradeColorConfig) => (
+                <div key={label} className="flex items-center gap-1">
+                  <div className={`w-3 h-3 rounded-full ${bgColor}`} />
+                  <span className="text-xs text-foreground font-semibold">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-          {onAdd && (
-            <Button size="sm" onClick={onAdd}>
-              <Plus className="mr-2 h-4 w-4" />
-              {TABLE_CONFIG.addButtonText}
+        {/* View Filter Button */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Settings2 className="mr-2 h-4 w-4" />
+              {TABLE_CONFIG.viewButtonText}
             </Button>
-          )}
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[150px]">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Table */}
