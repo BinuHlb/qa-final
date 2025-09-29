@@ -2,7 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { QAReview } from '@/types/qaReview';
-import { MoreHorizontal, Eye, Edit } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
@@ -14,7 +14,8 @@ import {
 
 export const createQAReviewColumns = (
   onView: (review: QAReview) => void,
-  onEdit: (review: QAReview) => void
+  onEdit: (review: QAReview) => void,
+  onAssign?: (review: QAReview) => void
 ): ColumnDef<QAReview>[] => {
   return [
     {
@@ -101,17 +102,36 @@ export const createQAReviewColumns = (
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button 
+                variant="ghost" 
+                className="h-8 w-8 p-0"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView(review)}>
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation();
+                onView(review);
+              }}>
                 <Eye className="mr-2 h-4 w-4" />
                 View
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(review)}>
+              {onAssign && (
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  onAssign(review);
+                }}>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Assign
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={(e) => {
+                e.stopPropagation();
+                onEdit(review);
+              }}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

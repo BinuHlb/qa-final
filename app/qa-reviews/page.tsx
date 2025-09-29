@@ -72,14 +72,18 @@ export default function QAReviewsPage() {
     setDetailDialogOpen(true);
   };
 
-  const handleRowClick = (row: QAReview) => {
-    setSelectedReview(row);
+  const handleAssign = (review: QAReview) => {
+    setSelectedReview(review);
     setOpen(true);
   };
 
+  const handleRowClick = (row: QAReview) => {
+    // Row click opens the assign dialog
+    handleAssign(row);
+  };
 
-  // Create table layout configuration
-  const tableLayout = createQAReviewTableLayout(handleView, handleEdit, handleRowClick);
+  // Create table layout configuration with both dropdown and row click assign functionality
+  const tableLayout = createQAReviewTableLayout(handleView, handleEdit, handleAssign, handleRowClick);
 
   // Get enhanced filter configuration with dynamic counts
   const enhancedConfig = updateFilterCounts(ENHANCED_FILTER_CONFIGS.qaReviews, data, filters);

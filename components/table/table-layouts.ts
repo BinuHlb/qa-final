@@ -14,10 +14,11 @@ export interface TableLayoutConfig {
 export const createQAReviewTableLayout = (
   onView: (review: QAReview) => void,
   onEdit: (review: QAReview) => void,
+  onAssign?: (review: QAReview) => void,
   onRowClick?: (row: QAReview) => void
 ): TableLayoutConfig => {
   return {
-    columns: createQAReviewColumns(onView, onEdit),
+    columns: createQAReviewColumns(onView, onEdit, onAssign),
     searchKey: 'memberFirmIntranetName',
     searchPlaceholder: 'Search reviews...',
     onRowClick,
