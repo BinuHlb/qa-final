@@ -887,9 +887,9 @@ export function updateFilterCounts(
 ) {
   return {
     ...config,
-    filters: config.filters.map(filter => ({
+    filters: config.filters.map((filter: { key: string; label: string; options: FilterOption[] }) => ({
       ...filter,
-      options: filter.options.map(option => {
+      options: filter.options.map((option: FilterOption) => {
         let count = 0;
         
         if (option.value === 'all') {

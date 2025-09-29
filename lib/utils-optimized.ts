@@ -273,28 +273,45 @@ export function validatePattern(value: string, pattern: string): boolean {
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
-): (...args: Parameters<T>) => void {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   let timeout: NodeJS.Timeout;
   
-  return (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
+  
+  debounced.cancel = () => {
+    clearTimeout(timeout);
+  };
+  
+  return debounced;
 }
 
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number
-): (...args: Parameters<T>) => void {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   let inThrottle: boolean;
+  let timeoutId: NodeJS.Timeout | null = null;
   
-  return (...args: Parameters<T>) => {
+  const throttled = (...args: Parameters<T>) => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      timeoutId = setTimeout(() => inThrottle = false, limit);
     }
   };
+  
+  throttled.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+    inThrottle = false;
+  };
+  
+  return throttled;
 }
 
 // ============================================================================
@@ -540,3 +557,4 @@ export function isObject(value: any): value is object {
 export function isFunction(value: any): value is Function {
   return typeof value === 'function';
 }
+

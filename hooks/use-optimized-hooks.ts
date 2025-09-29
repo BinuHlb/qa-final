@@ -118,7 +118,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 export function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
-): T {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   const debouncedCallback = useMemo(
     () => debounce(callback, delay),
     [callback, delay]
@@ -126,17 +126,17 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
 
   useEffect(() => {
     return () => {
-      debouncedCallback.cancel?.();
+      debouncedCallback.cancel();
     };
   }, [debouncedCallback]);
 
-  return debouncedCallback as T;
+  return debouncedCallback;
 }
 
 export function useThrottledCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
-): T {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   return useMemo(
     () => throttle(callback, delay),
     [callback, delay]
@@ -439,10 +439,12 @@ export function useForm<T extends Record<string, any>>(
     let isValid = true;
 
     Object.entries(validation).forEach(([field, validator]) => {
-      const error = validator(values[field as keyof T]);
-      if (error) {
-        newErrors[field as keyof T] = error;
-        isValid = false;
+      if (validator) {
+        const error = validator(values[field as keyof T]);
+        if (error) {
+          newErrors[field as keyof T] = error;
+          isValid = false;
+        }
       }
     });
 
