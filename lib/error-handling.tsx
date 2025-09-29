@@ -4,6 +4,7 @@
  */
 
 import { toast } from 'sonner';
+import React, { useRef, useCallback, useState } from 'react';
 
 // ============================================================================
 // ERROR TYPES
@@ -241,7 +242,7 @@ export class ErrorHandler {
     toast.error(toastConfig.title, {
       description: toastConfig.description,
       duration: toastConfig.duration,
-      action: toastConfig.action,
+      ...((toastConfig as any).action && { action: (toastConfig as any).action }),
     });
   }
 
@@ -504,15 +505,15 @@ export function createErrorFromResponse(response: Response, context?: Record<str
   }
   
   if (status === 404) {
-    return new NotFoundError('Resource not found', { status, context });
+    return new NotFoundError('Resource not found');
   }
   
   if (status === 401) {
-    return new AuthenticationError('Authentication required', { status, context });
+    return new AuthenticationError('Authentication required');
   }
   
   if (status === 403) {
-    return new AuthorizationError('Access denied', { status, context });
+    return new AuthorizationError('Access denied');
   }
   
   if (status >= 400) {
@@ -588,7 +589,7 @@ export async function withRetry<T>(
 ): Promise<T> {
   const { maxAttempts, delay, backoffMultiplier = 2, maxDelay = 10000 } = config;
   
-  let lastError: Error;
+  let lastError: Error = new Error('Unknown error');
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {

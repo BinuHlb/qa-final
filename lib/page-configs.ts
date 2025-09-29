@@ -28,7 +28,7 @@ export const PAGE_CONFIGS = {
       createQuickActionConfig(
         'Add QA Review',
         'Create a new QA review assignment',
-        'Plus',
+        'FileText',
         { href: '/qa-reviews', variant: 'glass' }
       ),
       createQuickActionConfig(
@@ -85,7 +85,6 @@ export const PAGE_CONFIGS = {
           sortable: true,
           filterable: true,
           cellType: 'badge',
-          render: (value) => createStatusBadgeConfig(value, 'qaReview'),
         }),
         createTableColumnConfig('type', 'Type', {
           sortable: true,
@@ -145,10 +144,6 @@ export const PAGE_CONFIGS = {
                 sortable: true,
                 filterable: true,
                 cellType: 'badge',
-                render: (value) => createStatusBadgeConfig(
-                  value ? 'active' : 'inactive', 
-                  'user'
-                ),
               }),
               createTableColumnConfig('lastLogin', 'Last Login', {
                 sortable: true,
@@ -195,10 +190,6 @@ export const PAGE_CONFIGS = {
                 sortable: true,
                 filterable: true,
                 cellType: 'badge',
-                render: (value) => createStatusBadgeConfig(
-                  value ? 'active' : 'inactive', 
-                  'user'
-                ),
               }),
               createTableColumnConfig('joinedDate', 'Joined', {
                 sortable: true,
@@ -222,7 +213,7 @@ export const PAGE_CONFIGS = {
       createQuickActionConfig(
         'Add User',
         'Create a new user account',
-        'UserPlus',
+        'Users',
         { variant: 'glass' }
       ),
       createQuickActionConfig(
@@ -250,7 +241,6 @@ export const PAGE_CONFIGS = {
           sortable: true,
           filterable: true,
           cellType: 'badge',
-          render: (value) => createStatusBadgeConfig(value, 'file'),
         }),
         createTableColumnConfig('uploadedAt', 'Upload Date', {
           sortable: true,
@@ -313,7 +303,6 @@ export const PAGE_CONFIGS = {
           sortable: true,
           filterable: true,
           cellType: 'badge',
-          render: (value) => createStatusBadgeConfig(value, 'qaReview'),
         }),
         createTableColumnConfig('priority', 'Priority', {
           sortable: true,
@@ -376,7 +365,6 @@ export const PAGE_CONFIGS = {
           sortable: true,
           filterable: true,
           cellType: 'badge',
-          render: (value) => createStatusBadgeConfig(value, 'qaReview'),
         }),
         createTableColumnConfig('overallGrade', 'Grade', {
           sortable: true,
@@ -477,7 +465,7 @@ export const FORM_CONFIGS = {
       createFormFieldConfig('name', 'Full Name', 'text', {
         required: true,
         placeholder: 'Enter full name',
-        icon: 'User',
+        icon: 'Users',
       }),
       createFormFieldConfig('email', 'Email Address', 'email', {
         required: true,
@@ -505,7 +493,7 @@ export const FORM_CONFIGS = {
           { label: 'Active', value: 'true' },
           { label: 'Inactive', value: 'false' },
         ],
-        icon: 'Toggle',
+        icon: 'Settings',
       }),
     ],
   },
@@ -522,7 +510,7 @@ export const FORM_CONFIGS = {
       createFormFieldConfig('contactPerson', 'Contact Person', 'text', {
         required: true,
         placeholder: 'Enter contact person name',
-        icon: 'User',
+        icon: 'Users',
       }),
       createFormFieldConfig('email', 'Email Address', 'email', {
         required: true,

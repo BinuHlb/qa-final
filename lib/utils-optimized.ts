@@ -74,7 +74,7 @@ export function searchIn<T>(array: T[], query: string, fields: (keyof T)[]): T[]
   const searchTerm = query.toLowerCase();
   return array.filter(item => {
     return fields.some(field => {
-      const value = getNestedValue(item, field);
+      const value = getNestedValue(item, field as string);
       return value && value.toString().toLowerCase().includes(searchTerm);
     });
   });
@@ -367,7 +367,7 @@ export function getSessionStorage<T>(key: string, defaultValue?: T): T | null {
 // ============================================================================
 
 export function unique<T>(array: T[]): T[] {
-  return [...new Set(array)];
+  return Array.from(new Set(array));
 }
 
 export function uniqueBy<T>(array: T[], key: keyof T): T[] {
@@ -404,7 +404,7 @@ export function difference<T>(array1: T[], array2: T[]): T[] {
 // OBJECT UTILITIES
 // ============================================================================
 
-export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   const result = {} as Pick<T, K>;
   keys.forEach(key => {
     if (key in obj) {
@@ -427,7 +427,7 @@ export function deepMerge<T>(target: T, source: Partial<T>): T {
   
   for (const key in source) {
     if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-      result[key] = deepMerge(result[key] || {}, source[key] as any);
+      result[key] = deepMerge(result[key] || {} as any, source[key] as any) as any;
     } else {
       result[key] = source[key] as T[Extract<keyof T, string>];
     }
@@ -518,7 +518,7 @@ export function safeExecute<T>(fn: () => T, fallback?: T): T | undefined {
 // ============================================================================
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-export type Required<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 export type Nullable<T> = T | null;
 export type Maybe<T> = T | null | undefined;
 

@@ -3,7 +3,7 @@
  * Comprehensive performance monitoring and optimization utilities
  */
 
-import { ComponentType, lazy, Suspense, memo, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { ComponentType, lazy, Suspense, memo, useMemo, useCallback, useRef, useEffect, useState } from 'react';
 
 // ============================================================================
 // CODE SPLITTING & LAZY LOADING
@@ -15,9 +15,9 @@ export function createLazyComponent<T extends ComponentType<any>>(
 ) {
   const LazyComponent = lazy(importFunc);
   
-  return memo((props: React.ComponentProps<T>) => (
-    <Suspense fallback={fallback ? <fallback /> : <div>Loading...</div>}>
-      <LazyComponent {...props} />
+  return memo((props: Readonly<React.ComponentProps<T>>) => (
+    <Suspense fallback={fallback ? React.createElement(fallback) : <div>Loading...</div>}>
+      <LazyComponent {...(props as any)} />
     </Suspense>
   ));
 }
@@ -38,7 +38,7 @@ export function createLazyPage<T extends ComponentType<any>>(
 
 export function createMemoizedComponent<T extends ComponentType<any>>(
   Component: T,
-  areEqual?: (prevProps: React.ComponentProps<T>, nextProps: React.ComponentProps<T>) => boolean
+  areEqual?: (prevProps: Readonly<React.ComponentProps<T>>, nextProps: Readonly<React.ComponentProps<T>>) => boolean
 ) {
   return memo(Component, areEqual);
 }
@@ -286,7 +286,7 @@ export function createOptimizedComponent<T extends ComponentType<any>>(
   Component: T,
   options: {
     shouldMemoize?: boolean;
-    areEqual?: (prevProps: React.ComponentProps<T>, nextProps: React.ComponentProps<T>) => boolean;
+    areEqual?: (prevProps: Readonly<React.ComponentProps<T>>, nextProps: Readonly<React.ComponentProps<T>>) => boolean;
     displayName?: string;
   } = {}
 ) {
@@ -295,7 +295,7 @@ export function createOptimizedComponent<T extends ComponentType<any>>(
   let OptimizedComponent = Component;
   
   if (shouldMemoize) {
-    OptimizedComponent = memo(Component, areEqual) as T;
+    OptimizedComponent = memo(Component, areEqual) as unknown as T;
   }
   
   if (displayName) {
@@ -433,7 +433,7 @@ export function createPreloader() {
       preloadedResources.add(src);
     },
     
-    preloadModule: async <T>(importFunc: () => Promise<T>) => {
+    preloadModule: (importFunc: () => Promise<any>) => async () => {
       const moduleId = importFunc.toString();
       if (preloadedResources.has(moduleId)) return;
       await preloadModule(importFunc);
